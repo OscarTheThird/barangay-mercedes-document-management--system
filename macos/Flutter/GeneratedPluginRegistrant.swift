@@ -8,3 +8,4 @@ import Foundation
 
 func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
 }
+ 
