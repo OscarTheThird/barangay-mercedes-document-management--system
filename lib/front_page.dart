@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'services.dart';
+import 'services.dart'; // Assuming this file contains your ServicesPage
+import 'login_page.dart'; // <-- import the LoginPage here
 
 void main() => runApp(BMDPSApp());
 
@@ -47,14 +48,23 @@ class BarangayMercedesPage extends StatelessWidget {
                 );
               },
             ),
+            ListTile(
+              leading: Icon(Icons.login),
+              title: Text('Login'),
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginPage()),
+                );
+              },
+            ),
           ],
         ),
       ),
       appBar: AppBar(
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
-        iconTheme: IconThemeData(
-            color: Colors.white), // <-- sets the burger menu to white
+        iconTheme: IconThemeData(color: Colors.white),
         title: Text(
           'BMDPS',
           style: TextStyle(
