@@ -11,7 +11,11 @@ class ServicesPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Services'),
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text(
+          'Services',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.deepPurple,
       ),
       body: Container(
@@ -108,15 +112,20 @@ class ServiceCard extends StatelessWidget {
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+                fontSize: 26,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 1.2,
               ),
             ),
             SizedBox(height: 12),
             Text(
               description,
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white70),
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.9),
+                fontSize: 18,
+                height: 1.3,
+              ),
             ),
             SizedBox(height: 16),
             ElevatedButton(
@@ -127,8 +136,16 @@ class ServiceCard extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(30),
                 ),
+                padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
               ),
-              child: Text('PROCEED'),
+              child: Text(
+                'PROCEED',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  letterSpacing: 1.1,
+                ),
+              ),
             ),
           ],
         ),
