@@ -2,18 +2,6 @@ import 'package:flutter/material.dart';
 import 'services.dart'; // Assuming this file contains your ServicesPage
 import 'login_page.dart'; // <-- import the LoginPage here
 
-void main() => runApp(BMDPSApp());
-
-class BMDPSApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'BMDPS',
-      home: BarangayMercedesPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
 
 class BarangayMercedesPage extends StatelessWidget {
   @override

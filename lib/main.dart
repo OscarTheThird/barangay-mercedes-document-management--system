@@ -1,41 +1,22 @@
 import 'package:flutter/material.dart';
-import 'front_page.dart'; // Make sure this path is correct
+import 'front_page.dart'; // Make sure this path is correct based on your project structure
 
-void main() => runApp(MyApp());
+void main() {
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Navigation Demo',
-      home: HomePage(),
+      title: 'Flutter App',
       debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Main Page'),
-        backgroundColor: Colors.deepPurple,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
-      body: Center(
-        child: ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color.fromARGB(255, 255, 255, 255),
-          ),
-          child: Text('Front Page'),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => BarangayMercedesPage()),
-            );
-          },
-        ),
-      ),
+      home: BarangayMercedesPage(), // Calls your BMDPSApp widget
     );
   }
 }
