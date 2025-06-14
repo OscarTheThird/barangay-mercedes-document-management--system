@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "479904026679",
-    "project_id": "barangay-mercedes-dms",
-    "storage_bucket": "barangay-mercedes-dms.firebasestorage.app"
+    "project_number": "994798453240",
+    "project_id": "barangay-mercedes-mds",
+    "storage_bucket": "barangay-mercedes-mds.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:479904026679:android:30a8e9ca4adda7edf9afb2",
+        "mobilesdk_app_id": "1:994798453240:android:e837df9401ca738139960d",
         "android_client_info": {
           "package_name": "com.example.document_management_system"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBpM39yFm9AimNQ0WyesmOpnaBeYfsFRLo"
+          "current_key": "AIzaSyAGGHbFAIAZSi6Rg3jSFKEAvKiGx5-Ul00"
         }
       ],
       "services": {

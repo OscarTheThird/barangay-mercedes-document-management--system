@@ -1,8 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class LoginPage extends StatelessWidget {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool isLoading = false;
+
+  Future<void> loginUser() async {
+    setState(() => isLoading = true);
+
+    try {
+      final email = emailController.text.trim();
+      final password = passwordController.text;
+
+      if (email.isEmpty || password.isEmpty) {
+        throw FirebaseAuthException(code: 'empty', message: 'Fill all fields.');
+      }
+
+      await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login successful')),
+      );
+
+      Navigator.pop(context); // Return to home or go to dashboard
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message ?? 'Login failed')),
+      );
+    } finally {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -10,14 +49,8 @@ class LoginPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white), // <-- add this line
-        title: Text(
-          "Login",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text("Login", style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.deepPurple,
         centerTitle: true,
       ),
@@ -25,7 +58,6 @@ class LoginPage extends StatelessWidget {
         padding: EdgeInsets.all(24.0),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 40),
               Image.asset(
@@ -33,54 +65,43 @@ class LoginPage extends StatelessWidget {
                 height: screenWidth > 600 ? 220 : 180,
               ),
               SizedBox(height: 20),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                child: Text(
-                  'Login to BMDPS Admin',
-                  style: TextStyle(
+              Text(
+                'Login to BMDPS Admin',
+                style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
+                    color: Colors.black),
               ),
               SizedBox(height: 32),
               TextField(
                 controller: emailController,
                 decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
+                    labelText: 'Email', border: OutlineInputBorder()),
               ),
               SizedBox(height: 16),
               TextField(
                 controller: passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
+                    labelText: 'Password', border: OutlineInputBorder()),
               ),
               SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Logged in (not really, just a placeholder)'),
-                  ));
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                  padding: EdgeInsets.symmetric(
-                      horizontal: 48, vertical: 20), // bigger button
-                ),
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold), // bigger & bold text
-                ),
-              ),
+              isLoading
+                  ? CircularProgressIndicator()
+                  : ElevatedButton(
+                      onPressed: loginUser,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepPurple,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 48, vertical: 20),
+                      ),
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                            fontSize: 26, fontWeight: FontWeight.bold),
+                      ),
+                    ),
             ],
           ),
         ),
