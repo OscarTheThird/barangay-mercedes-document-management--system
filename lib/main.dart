@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
-import 'front_page.dart'; // Make sure this path is correct based on your project structure
+import 'package:firebase_core/firebase_core.dart';
+import 'front_page.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // Initialize Firebase
+
   runApp(const MyApp());
 }
 
@@ -16,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: BarangayMercedesPage(), // Calls your BMDPSApp widget
+      home: BarangayMercedesPage(),
     );
   }
 }
