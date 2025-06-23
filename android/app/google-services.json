@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "64169812202",
+    "project_id": "bmdps-effa7",
+    "storage_bucket": "bmdps-effa7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:64169812202:android:f0951921cb1577bb4ff793",
+        "android_client_info": {
+          "package_name": "com.example.document_management_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCg1FiFS0-Y_iW05yPEqIyiNJgicx76UoI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
