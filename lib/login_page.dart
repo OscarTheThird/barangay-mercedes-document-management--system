@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'admin_home_page.dart';
+import 'firebase_options.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -102,19 +103,9 @@ class _LoginPageState extends State<LoginPage> {
     var screenWidth = MediaQuery.of(context).size.width;
 
     return FutureBuilder(
-      future: kIsWeb
-          ? Firebase.initializeApp(
-              options: FirebaseOptions(
-                apiKey: "AIzaSyBIuZFuzXNCDT_1QECbTTgVlKHUGqI8Z7E",
-                authDomain: "bmdps-effa7.firebaseapp.com",
-                projectId: "bmdps-effa7",
-                storageBucket: "bmdps-effa7.firebasestorage.app",
-                messagingSenderId: "64169812202",
-                appId: "1:64169812202:web:0449b14781ad42d44ff793",
-                measurementId: "G-424W3WYQS4",
-              ),
-            )
-          : Firebase.initializeApp(),
+      future: Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      ),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(

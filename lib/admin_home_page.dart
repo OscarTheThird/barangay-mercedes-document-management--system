@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'barangay_coordinator_page.dart';
 
 class AdminHomePage extends StatefulWidget {
   @override
@@ -12,42 +13,42 @@ class _AdminHomePageState extends State<AdminHomePage> {
     {
       'icon': Icons.groups,
       'label': 'POPULATION',
-      'value': 3,
+      'value': 100,
       'sublabel': 'TOTAL POPULATION',
       'color': Color(0xFF1976D2), // Blue
     },
     {
       'icon': Icons.male,
       'label': 'MALE',
-      'value': 25,
+      'value': 39,
       'sublabel': 'TOTAL POPULATION',
       'color': Color(0xFF43A047), // Green
     },
     {
       'icon': Icons.female,
       'label': 'FEMALE',
-      'value': 12,
+      'value': 61,
       'sublabel': 'TOTAL POPULATION',
       'color': Color(0xFFD81B60), // Pink
     },
     {
       'icon': Icons.how_to_vote,
       'label': 'VOTERS',
-      'value': 49,
+      'value': 47,
       'sublabel': 'TOTAL POPULATION',
       'color': Color(0xFFF9A825), // Yellow
     },
     {
       'icon': Icons.person,
       'label': 'NON VOTERS',
-      'value': 6,
+      'value': 53,
       'sublabel': 'TOTAL POPULATION',
       'color': Color(0xFF6D4C41), // Brown
     },
     {
       'icon': Icons.signpost,
       'label': 'PUROK',
-      'value': 7,
+      'value': 13,
       'sublabel': 'TOTAL POPULATION',
       'color': Color(0xFF5E35B1), // Purple
     },
@@ -216,9 +217,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   selected: _selectedIndex == 1,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {
-                    setState(() {
-                      _selectedIndex = 1;
-                    });
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (context) => BarangayCoordinatorPage()),
+                    );
                   },
                 ),
                 // Residents Record

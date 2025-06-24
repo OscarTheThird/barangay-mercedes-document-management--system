@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'front_page.dart'; // Make sure this path is correct based on your project structure
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
