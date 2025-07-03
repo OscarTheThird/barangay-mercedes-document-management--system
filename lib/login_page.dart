@@ -144,7 +144,7 @@ class _LoginPageState extends State<LoginPage> {
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     child: Text(
-                      'Login to BMDPS Admin',
+                      'Login to BMDMS Admin',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,

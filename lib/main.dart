@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: BarangayMercedesPage(), // Calls your BMDPSApp widget
+      home: BarangayMercedesPage(), // Calls your BMDMSApp widget
     );
   }
 }

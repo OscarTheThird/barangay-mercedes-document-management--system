@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'barangay_coordinator_page.dart';
+import 'residents_record.dart';
 
 class AdminHomePage extends StatefulWidget {
   @override
@@ -67,6 +68,75 @@ class _AdminHomePageState extends State<AdminHomePage> {
         : MediaQuery.of(context).size.width > 600
             ? 2
             : 1;
+    List<Widget> rows = [];
+    for (int i = 0; i < dashboardStats.length; i += crossAxisCount) {
+      rows.add(
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(crossAxisCount, (j) {
+            int index = i + j;
+            if (index >= dashboardStats.length) return SizedBox(width: 0, height: 0);
+            var stat = dashboardStats[index];
+            return Expanded(
+              child: Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Card(
+                  color: stat['color'],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  elevation: 2,
+                  child: Padding(
+                    padding: const EdgeInsets.all(18.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(stat['icon'], size: 64, color: Colors.black),
+                            Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  stat['label'],
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    letterSpacing: 1.1,
+                                  ),
+                                ),
+                                Text(
+                                  '${stat['value']}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 22,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 12),
+                        Text(
+                          stat['sublabel'],
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+        ),
+      );
+    }
     return Container(
       color: Color(0xFFEAE6FA),
       width: double.infinity,
@@ -74,65 +144,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
       child: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: 1000),
-          child: GridView.count(
-            shrinkWrap: true,
-            crossAxisCount: crossAxisCount,
-            crossAxisSpacing: 24,
-            mainAxisSpacing: 24,
-            childAspectRatio: 1.2,
-            children: dashboardStats.map((stat) {
-              return Card(
-                color: stat['color'],
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                elevation: 2,
-                child: Padding(
-                  padding: const EdgeInsets.all(18.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(stat['icon'], size: 64, color: Colors.black),
-                          Spacer(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                stat['label'],
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                  letterSpacing: 1.1,
-                                ),
-                              ),
-                              Text(
-                                '${stat['value']}',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 22,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 12),
-                      Text(
-                        stat['sublabel'],
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: rows,
           ),
         ),
       ),
@@ -143,11 +157,119 @@ class _AdminHomePageState extends State<AdminHomePage> {
     if (_selectedIndex == 0) {
       return _buildDashboardGrid(context);
     }
+    if (_selectedIndex == 1) {
+      // Brgy Officials and Staff Section
+      return BarangayCoordinatorContent();
+    }
+    if (_selectedIndex == 2) {
+      // Residents Record Section
+      return ResidentsRecordPage();
+    }
     // Placeholder for other navs
     return Center(
       child: Text(
         'Section coming soon!',
         style: TextStyle(fontSize: 24, color: Colors.deepPurple),
+      ),
+    );
+  }
+
+  Widget _buildResidentsTable() {
+    final List<Map<String, dynamic>> residents = [
+      {
+        'fullname': 'Amorio, Crischel T',
+        'nationalId': '000122222',
+        'age': 27,
+        'civilStatus': 'Single',
+        'gender': 'Female',
+        'voterStatus': 'No',
+      },
+      {
+        'fullname': 'Cena, John P',
+        'nationalId': '1122221212',
+        'age': 56,
+        'civilStatus': 'Married',
+        'gender': 'Male',
+        'voterStatus': 'Yes',
+      },
+      {
+        'fullname': 'Jario, Andres P',
+        'nationalId': '0000888774445',
+        'age': 31,
+        'civilStatus': 'Single',
+        'gender': 'Male',
+        'voterStatus': 'Yes',
+      },
+      {
+        'fullname': 'LeBron, James P',
+        'nationalId': '887455898',
+        'age': 31,
+        'civilStatus': 'Single',
+        'gender': 'Male',
+        'voterStatus': 'No',
+      },
+    ];
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(24),
+      scrollDirection: Axis.horizontal,
+      child: DataTable(
+        columns: [
+          DataColumn(label: Text('Fullname')),
+          DataColumn(label: Text('National ID')),
+          DataColumn(label: Text('Age')),
+          DataColumn(label: Text('Civil Status')),
+          DataColumn(label: Text('Gender')),
+          DataColumn(label: Text('Voter Status')),
+          DataColumn(label: Text('Action')),
+        ],
+        rows: residents.map((resident) {
+          return DataRow(cells: [
+            DataCell(Text(resident['fullname'])),
+            DataCell(Text(resident['nationalId'])),
+            DataCell(Text(resident['age'].toString())),
+            DataCell(Text(resident['civilStatus'])),
+            DataCell(Text(resident['gender'])),
+            DataCell(Text(resident['voterStatus'])),
+            DataCell(_buildActionMenu()),
+          ]);
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildActionMenu() {
+    return PopupMenuButton<String>(
+      onSelected: (value) {
+        // Handle actions here
+      },
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          value: 'edit',
+          child: Row(
+            children: [Icon(Icons.edit, color: Colors.green), SizedBox(width: 8), Text('Edit')],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'view',
+          child: Row(
+            children: [Icon(Icons.visibility, color: Colors.blue), SizedBox(width: 8), Text('View')],
+          ),
+        ),
+        PopupMenuItem(
+          value: 'remove',
+          child: Row(
+            children: [Icon(Icons.delete, color: Colors.red), SizedBox(width: 8), Text('Remove')],
+          ),
+        ),
+      ],
+      child: ElevatedButton(
+        onPressed: null,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        ),
+        child: Text('Action'),
       ),
     );
   }
@@ -217,9 +339,9 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   selected: _selectedIndex == 1,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(builder: (context) => BarangayCoordinatorPage()),
-                    );
+                    setState(() {
+                      _selectedIndex = 1;
+                    });
                   },
                 ),
                 // Residents Record
@@ -323,10 +445,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
           appBar: AppBar(
             backgroundColor: Colors.deepPurple,
             centerTitle: true,
-            automaticallyImplyLeading: !isWide, // Remove back arrow on wide screens
+            automaticallyImplyLeading: false,
             iconTheme: IconThemeData(color: Colors.white),
             title: Text(
-              'Admin Dashboard',
+              _getAppBarTitle(screenWidth),
               style: TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -345,5 +467,28 @@ class _AdminHomePageState extends State<AdminHomePage> {
         );
       },
     );
+  }
+
+  String _getAppBarTitle(double screenWidth) {
+    switch (_selectedIndex) {
+      case 0:
+        return 'Admin Dashboard';
+      case 1:
+        return 'Brgy Officials and Staff';
+      case 2:
+        return 'Residents Record';
+      case 3:
+        return 'Barangay Certificates';
+      case 4:
+        return 'Certificate of Indigency';
+      case 5:
+        return 'Blotter Records';
+      case 6:
+        return 'Requested Document';
+      case 7:
+        return 'House Record';
+      default:
+        return 'Admin Dashboard';
+    }
   }
 } 

@@ -216,6 +216,11 @@ class _BarangayCoordinatorPageState extends State<BarangayCoordinatorPage> {
                               maxLines: null,
                               expands: false,
                               keyboardType: TextInputType.multiline,
+                              onChanged: (value) {
+                                setState(() {
+                                  councilData[pos['title']!] = {'name': value};
+                                });
+                              },
                             ),
                           );
                         })),
@@ -233,28 +238,12 @@ class _BarangayCoordinatorPageState extends State<BarangayCoordinatorPage> {
             ),
             ElevatedButton(
               onPressed: () async {
-                bool anyFilled = false;
-                for (var section in allSections) {
-                  for (var pos in section['positions'] as List<Map<String, String>>) {
-                    final name = controllers[pos['title']!]!.text.trim();
-                    if (name.isNotEmpty) {
-                      anyFilled = true;
-                      await _firestore.collection('barangay_coordinator').doc(safeDocId(pos['title']!)).set({
-                        'title': pos['title'],
-                        'name': name,
-                      });
-                    }
-                  }
-                }
-                if (anyFilled) {
-                  Navigator.pop(context);
-                  _loadCouncilData();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text('Successfully Saved!')),
-                  );
-                }
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Updated successfully!')),
+                );
               },
-              child: Text('Confirm'),
+              child: Text('Save'),
             ),
           ],
         );
@@ -384,7 +373,7 @@ class _BarangayCoordinatorPageState extends State<BarangayCoordinatorPage> {
                 // Brgy Officials and Staff
                 ListTile(
                   leading: Icon(Icons.person, color: iconColor),
-                  title: Text('BRGY OFFICIALS AND STAFF', style: navTextStyle),
+                  title: Text('navigating brgy officials and staff', style: navTextStyle),
                   selected: true,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {},
@@ -462,191 +451,539 @@ class _BarangayCoordinatorPageState extends State<BarangayCoordinatorPage> {
   @override
   Widget build(BuildContext context) {
     final user = _auth.currentUser;
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isWide = constraints.maxWidth >= 900;
-        final double width = isWide ? 1000 : constraints.maxWidth * 0.98;
-        final int memberCount = members.length;
-        final double boxMinHeight = 70;
-        final scaffoldBody = isLoading
-            ? Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                padding: EdgeInsets.all(16),
-                scrollDirection: Axis.vertical,
-                child: Center(
-                  child: SizedBox(
-                    width: width,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          children: [
-                            if (user != null) ...[
-                              ElevatedButton(
-                                onPressed: _showAddDialog,
-                                child: Text('Add'),
-                              ),
-                              SizedBox(width: 8),
-                              ElevatedButton(
-                                onPressed: _showEditDialog,
-                                child: Text('Edit'),
-                              ),
-                            ],
-                          ],
-                        ),
-                        SizedBox(height: 16),
-                        // Chairman
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 3, maxWidth: width / 2),
-                            child: _buildPositionCard('Chairman', top[0]['role'], councilData['Chairman']),
-                          ),
-                        ),
-                        SizedBox(height: 16),
-                        // Co-Chairman
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 2.5, maxWidth: width * 0.7),
-                            child: _buildPositionCard('Co-Chairman', second[0]['role'], councilData['Co-Chairman']),
-                          ),
-                        ),
-                        SizedBox(height: 32),
-                        // Members
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                          child: LayoutBuilder(
-                            builder: (context, constraints) {
-                              final ScrollController _scrollController = ScrollController();
-                              return Scrollbar(
-                                controller: _scrollController,
-                                thumbVisibility: true,
-                                thickness: 10,
-                                radius: Radius.circular(8),
-                                interactive: true,
-                                child: SingleChildScrollView(
-                                  controller: _scrollController,
-                                  scrollDirection: Axis.horizontal,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: members.map((pos) {
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                                        child: ConstrainedBox(
-                                          constraints: BoxConstraints(
-                                            minWidth: 220,
-                                            maxWidth: 220,
-                                            minHeight: 140,
-                                            maxHeight: 140,
-                                          ),
-                                          child: Card(
-                                            elevation: 4,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(16),
-                                            ),
-                                            color: Colors.deepPurple.shade50,
-                                            child: Center(
-                                              child: Padding(
-                                                padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 10.0),
-                                                child: IntrinsicHeight(
-                                                  child: Column(
-                                                    mainAxisAlignment: MainAxisAlignment.center,
-                                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                                    children: [
-                                                      Flexible(
-                                                        child: Text(
-                                                          pos['title']!,
-                                                          textAlign: TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontWeight: FontWeight.bold,
-                                                            fontSize: constraints.maxWidth > 600 ? 16 : 14,
-                                                            color: Colors.black,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(height: 10),
-                                                      Flexible(
-                                                        child: Text(
-                                                          councilData[pos['title']] != null
-                                                              ? 'Name: ${councilData[pos['title']]['name']}'
-                                                              : (pos['role'] ?? ''),
-                                                          textAlign: TextAlign.center,
-                                                          style: TextStyle(
-                                                            fontSize: constraints.maxWidth > 600 ? 14 : 13,
-                                                            color: Colors.black,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+    final double width = MediaQuery.of(context).size.width > 900 ? 1000 : MediaQuery.of(context).size.width * 0.98;
+    final double boxMinHeight = 70;
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      scrollDirection: Axis.vertical,
+      child: Center(
+        child: SizedBox(
+          width: width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  if (user != null) ...[
+                    ElevatedButton(
+                      onPressed: _showAddDialog,
+                      child: Text('Add'),
+                    ),
+                    SizedBox(width: 8),
+                    ElevatedButton(
+                      onPressed: _showEditDialog,
+                      child: Text('Edit'),
+                    ),
+                  ],
+                ],
+              ),
+              SizedBox(height: 16),
+              // Chairman
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 3, maxWidth: width / 2),
+                  child: _buildPositionCard('Chairman', top[0]['role'], councilData['Chairman']),
+                ),
+              ),
+              SizedBox(height: 16),
+              // Co-Chairman
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 2.5, maxWidth: width * 0.7),
+                  child: _buildPositionCard('Co-Chairman', second[0]['role'], councilData['Co-Chairman']),
+                ),
+              ),
+              SizedBox(height: 32),
+              // Members
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final ScrollController _scrollController = ScrollController();
+                    return Scrollbar(
+                      controller: _scrollController,
+                      thumbVisibility: true,
+                      thickness: 10,
+                      radius: Radius.circular(8),
+                      interactive: true,
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: members.map((pos) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minWidth: 220,
+                                  maxWidth: 220,
+                                  minHeight: 140,
+                                  maxHeight: 140,
+                                ),
+                                child: Card(
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  color: Colors.deepPurple.shade50,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 10.0),
+                                      child: IntrinsicHeight(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                pos['title']!,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: constraints.maxWidth > 600 ? 16 : 14,
+                                                  color: Colors.black,
                                                 ),
                                               ),
                                             ),
-                                          ),
+                                            SizedBox(height: 10),
+                                            Flexible(
+                                              child: Text(
+                                                councilData[pos['title']] != null
+                                                    ? 'Name: ${councilData[pos['title']]['name']}'
+                                                    : (pos['role'] ?? ''),
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: constraints.maxWidth > 600 ? 14 : 13,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      );
-                                    }).toList(),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              );
-                            },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 48),
+              // Secretariat
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 2.5, maxWidth: width * 0.7),
+                  child: _buildPositionCard('Secretariat', secretariat[0]['role'], councilData['Secretariat']),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class BarangayCoordinatorContent extends StatefulWidget {
+  @override
+  _BarangayCoordinatorContentState createState() => _BarangayCoordinatorContentState();
+}
+
+class _BarangayCoordinatorContentState extends State<BarangayCoordinatorContent> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final List<Map<String, String>> top = [
+    {'title': 'Chairman', 'role': 'Mayor'},
+  ];
+  final List<Map<String, String>> second = [
+    {'title': 'Co-Chairman', 'role': 'District Supervisor DepED'},
+  ];
+  final List<Map<String, String>> members = [
+    {'title': 'SB Member - Chairman, Committee on Education', 'role': ''},
+    {'title': 'MPDO Member', 'role': ''},
+    {'title': 'Department Head - MSWD', 'role': ''},
+    {'title': 'Department Head - MHO', 'role': ''},
+    {'title': 'MLGOO Member', 'role': ''},
+    {'title': 'SB Member - Chairman, Committee on Health', 'role': ''},
+    {'title': 'SB Member - Chairman, Committee on Peace and Order', 'role': ''},
+    {'title': 'SB Member - Chairman, Committee on Appropriations', 'role': ''},
+    {'title': 'Civil Society (NGOs, POs, Civic/Religious Organizations)', 'role': ''},
+  ];
+  final List<Map<String, String>> secretariat = [
+    {'title': 'Secretariat', 'role': 'A secretariat may be organized to handle documentation and other program support function'},
+  ];
+
+  Map<String, dynamic> councilData = {
+    'Chairman': {'name': 'Oscar Maribojoc III'},
+    'Co-Chairman': {'name': 'Keith Lawrence Mabangue'},
+    'SB Member - Chairman, Committee on Education': {'name': 'Ariel Verzosa'},
+    'MPDO Member': {'name': 'Irish Imperial'},
+    'Department Head - MSWD': {'name': 'John Lloyd Casis'},
+    'Department Head - MHO': {'name': 'Angelo Lebrilla'},
+    'Secretariat': {'name': 'Elma Sultan'},
+  };
+  bool isLoading = false;
+
+  String safeDocId(String title) => title.replaceAll('/', '-');
+
+  @override
+  void initState() {
+    super.initState();
+    // _loadCouncilData(); // Disable Firestore for demo
+  }
+
+  void _showAddDialog() {
+    final allSections = [
+      {'label': 'Chairman', 'positions': top},
+      {'label': 'Co-Chairman', 'positions': second},
+      {'label': 'Members', 'positions': members},
+      {'label': 'Secretariat', 'positions': secretariat},
+    ];
+    final Map<String, TextEditingController> controllers = {
+      for (var section in allSections)
+        for (var pos in section['positions'] as List<Map<String, String>>) pos['title']!: TextEditingController(),
+    };
+    showDialog(
+      context: context,
+      builder: (context) {
+        final width = MediaQuery.of(context).size.width;
+        final dialogWidth = width > 700 ? 600.0 : width * 0.98;
+        return AlertDialog(
+          title: Text('Add Coordinators'),
+          content: Container(
+            width: dialogWidth,
+            child: SingleChildScrollView(
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var section in allSections) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            section['label'] as String,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              color: Colors.deepPurple,
+                            ),
                           ),
                         ),
-                        SizedBox(height: 48),
-                        // Secretariat
-                        Center(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 2.5, maxWidth: width * 0.7),
-                            child: _buildPositionCard('Secretariat', secretariat[0]['role'], councilData['Secretariat']),
-                          ),
-                        ),
+                        ...((section['positions'] as List<Map<String, String>>).map((pos) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: TextField(
+                              controller: controllers[pos['title']!],
+                              decoration: InputDecoration(
+                                labelText: pos['title'],
+                                isDense: true,
+                                alignLabelWithHint: true,
+                                border: OutlineInputBorder(),
+                              ),
+                              minLines: 1,
+                              maxLines: null,
+                              expands: false,
+                              keyboardType: TextInputType.multiline,
+                            ),
+                          );
+                        })),
                       ],
-                    ),
+                    ],
                   ),
                 ),
-              );
-        if (isWide) {
-          // Sidebar layout
-          return Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              title: Text(
-                'BRGY OFFICIALS AND STAFF',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: MediaQuery.of(context).size.width > 600 ? 32 : 24,
-                ),
               ),
-              backgroundColor: Colors.deepPurple,
-              automaticallyImplyLeading: false,
             ),
-            body: Row(
-              children: [
-                _buildDrawer(context),
-                Expanded(child: scaffoldBody),
-              ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
             ),
-          );
-        } else {
-          // Drawer menu layout
-          return Scaffold(
-            appBar: AppBar(
-              centerTitle: true,
-              title: Text(
-                'BRGY OFFICIALS AND STAFF',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: MediaQuery.of(context).size.width > 600 ? 32 : 24,
-                ),
-              ),
-              backgroundColor: Colors.deepPurple,
+            ElevatedButton(
+              onPressed: () async {
+                // Demo: just close dialog and show snackbar
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Demo: Add not implemented.')),
+                );
+              },
+              child: Text('Confirm'),
             ),
-            drawer: _buildDrawer(context),
-            body: scaffoldBody,
-          );
-        }
+          ],
+        );
       },
+    );
+  }
+
+  void _showEditDialog() {
+    final allSections = [
+      {'label': 'Chairman', 'positions': top},
+      {'label': 'Co-Chairman', 'positions': second},
+      {'label': 'Members', 'positions': members},
+      {'label': 'Secretariat', 'positions': secretariat},
+    ];
+    final Map<String, TextEditingController> controllers = {
+      for (var section in allSections)
+        for (var pos in section['positions'] as List<Map<String, String>>)
+          pos['title']!: TextEditingController(
+            text: councilData[pos['title']] != null ? councilData[pos['title']]['name'] ?? '' : '',
+          ),
+    };
+    showDialog(
+      context: context,
+      builder: (context) {
+        final width = MediaQuery.of(context).size.width;
+        final dialogWidth = width > 700 ? 600.0 : width * 0.98;
+        return AlertDialog(
+          title: Text('Edit Coordinators'),
+          content: Container(
+            width: dialogWidth,
+            child: SingleChildScrollView(
+              child: Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                margin: EdgeInsets.zero,
+                child: Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (var section in allSections) ...[
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Text(
+                            section['label'] as String,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 17,
+                              color: Colors.deepPurple,
+                            ),
+                          ),
+                        ),
+                        ...((section['positions'] as List<Map<String, String>>).map((pos) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 6.0),
+                            child: TextField(
+                              controller: controllers[pos['title']!],
+                              decoration: InputDecoration(
+                                labelText: pos['title'],
+                                isDense: true,
+                                alignLabelWithHint: true,
+                                border: OutlineInputBorder(),
+                              ),
+                              minLines: 1,
+                              maxLines: null,
+                              expands: false,
+                              keyboardType: TextInputType.multiline,
+                              onChanged: (value) {
+                                setState(() {
+                                  councilData[pos['title']!] = {'name': value};
+                                });
+                              },
+                            ),
+                          );
+                        })),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Updated successfully!')),
+                );
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildPositionCard(String title, String? role, Map<String, dynamic>? data) {
+    return Card(
+      margin: EdgeInsets.symmetric(horizontal: 6, vertical: 6),
+      child: Container(
+        width: 220,
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(title,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15)),
+            SizedBox(height: 4),
+            Text(
+              data != null ? 'Name: ${data['name']}' : (role ?? ''),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final double width = MediaQuery.of(context).size.width > 900 ? 1000 : MediaQuery.of(context).size.width * 0.98;
+    final double boxMinHeight = 70;
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(16),
+      scrollDirection: Axis.vertical,
+      child: Center(
+        child: SizedBox(
+          width: width,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _showAddDialog,
+                    child: Text('Add'),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton(
+                    onPressed: _showEditDialog,
+                    child: Text('Edit'),
+                  ),
+                ],
+              ),
+              SizedBox(height: 16),
+              // Chairman
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 3, maxWidth: width / 2),
+                  child: _buildPositionCard('Chairman', top[0]['role'], councilData['Chairman']),
+                ),
+              ),
+              SizedBox(height: 16),
+              // Co-Chairman
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 2.5, maxWidth: width * 0.7),
+                  child: _buildPositionCard('Co-Chairman', second[0]['role'], councilData['Co-Chairman']),
+                ),
+              ),
+              SizedBox(height: 32),
+              // Members
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final ScrollController _scrollController = ScrollController();
+                    return Scrollbar(
+                      controller: _scrollController,
+                      thumbVisibility: true,
+                      thickness: 10,
+                      radius: Radius.circular(8),
+                      interactive: true,
+                      child: SingleChildScrollView(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: members.map((pos) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minWidth: 220,
+                                  maxWidth: 220,
+                                  minHeight: 140,
+                                  maxHeight: 140,
+                                ),
+                                child: Card(
+                                  elevation: 4,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  color: Colors.deepPurple.shade50,
+                                  child: Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 14.0, horizontal: 10.0),
+                                      child: IntrinsicHeight(
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                pos['title']!,
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: constraints.maxWidth > 600 ? 16 : 14,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(height: 10),
+                                            Flexible(
+                                              child: Text(
+                                                councilData[pos['title']] != null
+                                                    ? 'Name: ${councilData[pos['title']]['name']}'
+                                                    : (pos['role'] ?? ''),
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                  fontSize: constraints.maxWidth > 600 ? 14 : 13,
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              SizedBox(height: 48),
+              // Secretariat
+              Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: boxMinHeight, minWidth: width / 2.5, maxWidth: width * 0.7),
+                  child: _buildPositionCard('Secretariat', secretariat[0]['role'], councilData['Secretariat']),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 } 
