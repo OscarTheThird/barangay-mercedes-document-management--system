@@ -1,4 +1,13 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:file_picker/file_picker.dart';
+import 'dart:typed_data';
 
 class ResidentsRecordPage extends StatefulWidget {
   @override
@@ -6,54 +15,34 @@ class ResidentsRecordPage extends StatefulWidget {
 }
 
 class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
-  final List<Map<String, dynamic>> residents = [
-    {
-      'fullname': 'Amorio, Crischel T',
-      'nationalId': '000122222',
-      'age': 27,
-      'civilStatus': 'Single',
-      'gender': 'Female',
-      'voterStatus': 'No',
-      'avatar': 'assets/images/avatar1.png',
-    },
-    {
-      'fullname': 'Cena, John P',
-      'nationalId': '1122221212',
-      'age': 56,
-      'civilStatus': 'Married',
-      'gender': 'Male',
-      'voterStatus': 'Yes',
-      'avatar': 'assets/images/avatar2.png',
-    },
-    {
-      'fullname': 'Jario, Andres P',
-      'nationalId': '0000888774445',
-      'age': 31,
-      'civilStatus': 'Single',
-      'gender': 'Male',
-      'voterStatus': 'Yes',
-      'avatar': null,
-    },
-    {
-      'fullname': 'LeBron, James P',
-      'nationalId': '887455898',
-      'age': 31,
-      'civilStatus': 'Single',
-      'gender': 'Male',
-      'voterStatus': 'No',
-      'avatar': 'assets/images/avatar3.png',
-    },
-  ];
   int _rowsPerPage = 10;
   String _search = '';
+  File? _selectedImage;
+  Uint8List? _selectedImageBytes; // For web
+  bool _isUploading = false;
+  final _formKey = GlobalKey<FormState>();
+  final Map<String, TextEditingController> _controllers = {
+    'firstname': TextEditingController(),
+    'middlename': TextEditingController(),
+    'lastname': TextEditingController(),
+    'suffix': TextEditingController(),
+    'birthplace': TextEditingController(),
+    'birthday': TextEditingController(),
+    'age': TextEditingController(),
+    'civilStatus': TextEditingController(),
+    'gender': TextEditingController(),
+    'purok': TextEditingController(),
+    'voterStatus': TextEditingController(),
+    'email': TextEditingController(),
+    'contact': TextEditingController(),
+    'occupation': TextEditingController(),
+    'citizenship': TextEditingController(),
+    'address': TextEditingController(),
+    'householdNo': TextEditingController(),
+  };
 
   @override
   Widget build(BuildContext context) {
-    final filteredResidents = residents.where((r) =>
-      r['fullname'].toLowerCase().contains(_search.toLowerCase()) ||
-      r['nationalId'].toLowerCase().contains(_search.toLowerCase())
-    ).toList();
-
     return Center(
       child: Container(
         constraints: BoxConstraints(maxWidth: 1200),
@@ -139,104 +128,121 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                   ],
                 ),
                 SizedBox(height: 16),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columnSpacing: 24,
-                      headingRowColor: MaterialStateProperty.all(Color(0xFFF6F6FA)),
-                      dataRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-                        if (states.contains(MaterialState.selected)) return Colors.deepPurple.shade50;
-                        return null;
-                      }),
-                      dividerThickness: 0.5,
-                      columns: [
-                        DataColumn(label: Text('Fullname', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('National ID', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Age', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Civil Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Gender', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Voter Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Action', style: TextStyle(fontWeight: FontWeight.bold))),
-                      ],
-                      rows: List.generate(filteredResidents.take(_rowsPerPage).length, (i) {
-                        final resident = filteredResidents[i];
-                        final isEven = i % 2 == 0;
-                        return DataRow(
-                          color: MaterialStateProperty.all(isEven ? Color(0xFFF8F8FA) : Colors.white),
-                          cells: [
-                            DataCell(Row(
+                StreamBuilder<QuerySnapshot>(
+                  stream: FirebaseFirestore.instance.collection('residents').orderBy('createdAt', descending: true).snapshots(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(child: CircularProgressIndicator());
+                    }
+                    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                      return Center(child: Text('No residents found.'));
+                    }
+                    print('Fetched residents: \\${snapshot.data!.docs.length}');
+                    final filteredResidents = snapshot.data!.docs.where((doc) {
+                      final data = doc.data() as Map<String, dynamic>;
+                      return data['firstname']?.toLowerCase()?.contains(_search.toLowerCase()) == true ||
+                          data['lastname']?.toLowerCase()?.contains(_search.toLowerCase()) == true;
+                    }).toList();
+                    return Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                          ),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              columnSpacing: 24,
+                              headingRowColor: MaterialStateProperty.all(Color(0xFFF6F6FA)),
+                              dataRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
+                                if (states.contains(MaterialState.selected)) return Colors.deepPurple.shade50;
+                                return null;
+                              }),
+                              dividerThickness: 0.5,
+                              columns: [
+                                DataColumn(label: Text('ID Number', style: TextStyle(fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Purok', style: TextStyle(fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Age', style: TextStyle(fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Civil Status', style: TextStyle(fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Gender', style: TextStyle(fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Voter Status', style: TextStyle(fontWeight: FontWeight.bold))),
+                                DataColumn(label: Text('Action', style: TextStyle(fontWeight: FontWeight.bold))),
+                              ],
+                              rows: List.generate(filteredResidents.take(_rowsPerPage).length, (i) {
+                                final doc = filteredResidents[i];
+                                final data = doc.data() as Map<String, dynamic>;
+                                final isEven = i % 2 == 0;
+                                return DataRow(
+                                  color: MaterialStateProperty.all(isEven ? Color(0xFFF8F8FA) : Colors.white),
+                                  cells: [
+                                    DataCell(Text('')), // ID Number (empty for now)
+                                    DataCell(
+                                      Container(
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          (data['firstname'] ?? '') +
+                                          (data['middlename'] != null && data['middlename'] != '' ? ' ' + data['middlename'] : '') +
+                                          (data['lastname'] != null && data['lastname'] != '' ? ' ' + data['lastname'] : ''),
+                                          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.deepPurple.shade900, fontSize: 15),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      ),
+                                    ),
+                                    DataCell(Text(data['purok'] ?? '')),
+                                    DataCell(Text(data['age']?.toString() ?? '')),
+                                    DataCell(Text(data['civilStatus'] ?? '')),
+                                    DataCell(Text(data['gender'] ?? '')),
+                                    DataCell(Text(data['voterStatus'] ?? '')),
+                                    DataCell(_buildStyledActionMenu(context)),
+                                  ],
+                                );
+                              }),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Showing 1 to \\${filteredResidents.length < _rowsPerPage ? filteredResidents.length : _rowsPerPage} of \\${filteredResidents.length} entries'),
+                            Row(
                               children: [
-                                resident['avatar'] != null
-                                  ? CircleAvatar(radius: 28, backgroundImage: AssetImage(resident['avatar']))
-                                  : CircleAvatar(radius: 28, backgroundColor: Colors.grey.shade200, child: Icon(Icons.person, color: Colors.deepPurple, size: 32)),
-                                SizedBox(width: 10),
+                                OutlinedButton(
+                                  onPressed: null,
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    side: BorderSide(color: Colors.grey.shade300),
+                                  ),
+                                  child: Text('Previous'),
+                                ),
+                                SizedBox(width: 8),
                                 Container(
                                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: Colors.deepPurple.shade50,
-                                    borderRadius: BorderRadius.circular(8),
+                                    color: Colors.blue,
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
-                                  child: Text(
-                                    resident['fullname'],
-                                    style: TextStyle(fontWeight: FontWeight.w600, color: Colors.deepPurple.shade900, fontSize: 15),
+                                  child: Text('1', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                ),
+                                SizedBox(width: 8),
+                                OutlinedButton(
+                                  onPressed: null,
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                                    side: BorderSide(color: Colors.grey.shade300),
                                   ),
+                                  child: Text('Next'),
                                 ),
                               ],
-                            )),
-                            DataCell(Text(resident['nationalId'])),
-                            DataCell(Text(resident['age'].toString())),
-                            DataCell(Text(resident['civilStatus'])),
-                            DataCell(Text(resident['gender'])),
-                            DataCell(Text(resident['voterStatus'])),
-                            DataCell(_buildStyledActionMenu(context)),
+                            ),
                           ],
-                        );
-                      }),
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Showing 1 to ${filteredResidents.length < _rowsPerPage ? filteredResidents.length : _rowsPerPage} of ${filteredResidents.length} entries'),
-                    Row(
-                      children: [
-                        OutlinedButton(
-                          onPressed: null,
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            side: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          child: Text('Previous'),
-                        ),
-                        SizedBox(width: 8),
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text('1', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        ),
-                        SizedBox(width: 8),
-                        OutlinedButton(
-                          onPressed: null,
-                          style: OutlinedButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                            side: BorderSide(color: Colors.grey.shade300),
-                          ),
-                          child: Text('Next'),
                         ),
                       ],
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -312,6 +318,53 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
     );
   }
 
+  Future<dynamic> pickImage() async {
+    if (kIsWeb) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image);
+      if (result != null && result.files.single.bytes != null) {
+        _selectedImageBytes = result.files.single.bytes;
+        print('Selected image bytes: \\${_selectedImageBytes?.length}');
+        return _selectedImageBytes;
+      }
+      return null;
+    } else {
+      final picker = ImagePicker();
+      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+      if (pickedFile != null) {
+        print('Selected image file: \\${pickedFile.path}');
+        return File(pickedFile.path);
+      }
+      return null;
+    }
+  }
+
+  Future<String?> uploadImageToCloudinary(dynamic imageFile) async {
+    final cloudName = 'dvms81vso';
+    final uploadPreset = 'Profile';
+    final url = Uri.parse('https://api.cloudinary.com/v1_1/$cloudName/image/upload');
+    final request = http.MultipartRequest('POST', url)
+      ..fields['upload_preset'] = uploadPreset;
+    if (kIsWeb && imageFile is Uint8List) {
+      request.files.add(http.MultipartFile.fromBytes('file', imageFile, filename: 'upload.png'));
+    } else if (imageFile is File) {
+      request.files.add(await http.MultipartFile.fromPath('file', imageFile.path));
+    } else {
+      return null;
+    }
+    final response = await request.send();
+    if (response.statusCode == 200) {
+      final resStr = await response.stream.bytesToString();
+      final resJson = json.decode(resStr);
+      return resJson['secure_url'];
+    } else {
+      return null;
+    }
+  }
+
+  Future<void> saveResidentToFirestore(Map<String, dynamic> residentData) async {
+    await FirebaseFirestore.instance.collection('residents').add(residentData);
+  }
+
   void _showResidentForm({Map<String, dynamic>? resident}) {
     showDialog(
       context: context,
@@ -321,175 +374,250 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
           child: Container(
             width: 900,
             padding: EdgeInsets.all(0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                  decoration: BoxDecoration(
-                    color: Colors.deepPurple.shade50,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.person_add, color: Colors.deepPurple, size: 28),
-                      SizedBox(width: 12),
-                      Text(
-                        resident == null ? 'Add Resident' : 'Edit Resident',
-                        style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple.shade900),
-                      ),
-                    ],
-                  ),
-                ),
-                Divider(height: 1, thickness: 1),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
-                  child: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple.shade50,
+                      borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                    ),
                     child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Avatar and photo upload area
-                        Container(
-                          width: 220,
-                          child: Column(
-                            children: [
-                              Stack(
-                                alignment: Alignment.bottomRight,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 60,
-                                    backgroundColor: Colors.grey.shade200,
-                                    child: Icon(Icons.person, size: 80, color: Colors.grey),
+                        Icon(Icons.person_add, color: Colors.deepPurple, size: 28),
+                        SizedBox(width: 12),
+                        Text(
+                          resident == null ? 'Add Resident' : 'Edit Resident',
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple.shade900),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Divider(height: 1, thickness: 1),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+                    child: SingleChildScrollView(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Avatar and photo upload area
+                          Container(
+                            width: 220,
+                            child: Column(
+                              children: [
+                                Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 60,
+                                      backgroundColor: Colors.grey.shade200,
+                                      backgroundImage: kIsWeb
+                                          ? (_selectedImageBytes != null ? MemoryImage(_selectedImageBytes!) : null)
+                                          : (_selectedImage != null ? FileImage(_selectedImage!) : null),
+                                      child: (_selectedImage == null && _selectedImageBytes == null)
+                                          ? Icon(Icons.person, size: 80, color: Colors.grey)
+                                          : null,
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 18),
+                                OutlinedButton.icon(
+                                  onPressed: () async {
+                                    var img = await pickImage();
+                                    setState(() {
+                                      if (kIsWeb) {
+                                        _selectedImageBytes = img;
+                                        _selectedImage = null;
+                                        print('Selected image bytes: \\${_selectedImageBytes?.length}');
+                                      } else {
+                                        _selectedImage = img;
+                                        _selectedImageBytes = null;
+                                        print('Selected image file: \\${_selectedImage?.path}');
+                                      }
+                                    });
+                                  },
+                                  icon: Icon(Icons.upload_file, color: Colors.deepPurple),
+                                  label: Text('Upload Photo', style: TextStyle(color: Colors.deepPurple)),
+                                  style: OutlinedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                    side: BorderSide(color: Colors.deepPurple),
                                   ),
-                                  Positioned(
-                                    bottom: 8,
-                                    right: 8,
-                                    child: Material(
-                                      color: Colors.deepPurple,
-                                      shape: CircleBorder(),
-                                      child: InkWell(
-                                        borderRadius: BorderRadius.circular(24),
-                                        onTap: () {},
-                                        child: Padding(
-                                          padding: EdgeInsets.all(8),
-                                          child: Icon(Icons.camera_alt, color: Colors.white, size: 20),
-                                        ),
-                                      ),
+                                ),
+                                if (_selectedImage != null || _selectedImageBytes != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Text(
+                                      'Picture selected!',
+                                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.w600),
                                     ),
                                   ),
-                                ],
-                              ),
-                              SizedBox(height: 18),
-                              OutlinedButton.icon(
-                                onPressed: () {},
-                                icon: Icon(Icons.upload_file, color: Colors.deepPurple),
-                                label: Text('Upload Photo', style: TextStyle(color: Colors.deepPurple)),
-                                style: OutlinedButton.styleFrom(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                                  side: BorderSide(color: Colors.deepPurple),
-                                ),
-                              ),
-                              SizedBox(height: 24),
-                              Divider(),
-                              SizedBox(height: 8),
-                              _residentDropdown(['Household 1', 'Household 2'], 'Select Household No.'),
-                            ],
+                                SizedBox(height: 24),
+                                Divider(),
+                                SizedBox(height: 8),
+                                _residentTextField('Enter Household No.', controller: _controllers['householdNo']),
+                              ],
+                            ),
                           ),
+                          SizedBox(width: 32),
+                          // Main form fields
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(child: _residentTextField('Enter Firstname', controller: _controllers['firstname'])),
+                                    SizedBox(width: 8),
+                                    Expanded(child: _residentTextField('Enter Middlename', controller: _controllers['middlename'])),
+                                    SizedBox(width: 8),
+                                    Expanded(child: _residentTextField('Enter Lastname', controller: _controllers['lastname'])),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Flexible(flex: 4, child: _residentTextField('Enter Suffix (Optional)', controller: _controllers['suffix'], required: false)),
+                                    SizedBox(width: 8),
+                                    Flexible(flex: 5, child: _residentTextField('Enter Birthplace', controller: _controllers['birthplace'])),
+                                    SizedBox(width: 8),
+                                    Flexible(flex: 5, child: _residentTextField('dd/mm/yyyy', icon: Icons.calendar_today, controller: _controllers['birthday'])),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Expanded(child: _residentTextField('Enter Age', controller: _controllers['age'])),
+                                    SizedBox(width: 8),
+                                    Expanded(child: _residentDropdown(['Single', 'Married', 'Widowed', 'Separated'], 'Select Civil Status', controller: _controllers['civilStatus'])),
+                                    SizedBox(width: 8),
+                                    Expanded(child: _residentDropdown(['Male', 'Female'], 'Select Gender', controller: _controllers['gender'])),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Expanded(child: _residentDropdown(['Purok 1', 'Purok 2', 'Purok 3'], 'Select Purok Name', controller: _controllers['purok'])),
+                                    SizedBox(width: 8),
+                                    Expanded(child: _residentDropdown(['Yes', 'No'], 'Select Voters Status', controller: _controllers['voterStatus'])),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Expanded(child: _residentTextField('Enter Email', controller: _controllers['email'])),
+                                    SizedBox(width: 8),
+                                    Expanded(child: _residentTextField('Enter Contact Number', controller: _controllers['contact'])),
+                                    SizedBox(width: 8),
+                                    Expanded(child: _residentTextField('Enter Occupation', controller: _controllers['occupation'])),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                Row(
+                                  children: [
+                                    Expanded(child: _residentTextField('Enter Citizenship', controller: _controllers['citizenship'])),
+                                  ],
+                                ),
+                                SizedBox(height: 12),
+                                _residentTextField('Enter Address', controller: _controllers['address']),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Divider(height: 1, thickness: 1),
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: Text('Cancel'),
                         ),
-                        SizedBox(width: 32),
-                        // Main form fields
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(child: _residentTextField('Enter Firstname')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentTextField('Enter Middlename')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentTextField('Enter Lastname')),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(child: _residentTextField('Enter Alias')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentTextField('Enter Birthplace')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentTextField('dd/mm/yyyy', icon: Icons.calendar_today)),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(child: _residentTextField('Enter Age')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentDropdown(['Single', 'Married', 'Widowed', 'Separated'], 'Select Civil Status')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentDropdown(['Male', 'Female'], 'Select Gender')),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(child: _residentDropdown(['Purok 1', 'Purok 2', 'Purok 3'], 'Select Purok Name')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentDropdown(['Yes', 'No'], 'Select Voters Status')),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(child: _residentTextField('Enter Email')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentTextField('Enter Contact Number')),
-                                  SizedBox(width: 8),
-                                  Expanded(child: _residentTextField('Enter Occupation')),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              Row(
-                                children: [
-                                  Expanded(child: _residentTextField('Enter Citizenship')),
-                                ],
-                              ),
-                              SizedBox(height: 12),
-                              _residentTextField('Enter Address'),
-                            ],
+                        SizedBox(width: 12),
+                        ElevatedButton(
+                          onPressed: _isUploading ? null : () async {
+                            if (_formKey.currentState!.validate()) {
+                              setState(() { _isUploading = true; });
+                              String? imageUrl;
+                              if (_selectedImage != null || _selectedImageBytes != null) {
+                                imageUrl = await uploadImageToCloudinary(kIsWeb ? _selectedImageBytes : _selectedImage);
+                              }
+                              Map<String, dynamic> residentData = {
+                                'firstname': _controllers['firstname']!.text,
+                                'middlename': _controllers['middlename']!.text,
+                                'lastname': _controllers['lastname']!.text,
+                                'suffix': _controllers['suffix']!.text,
+                                'birthplace': _controllers['birthplace']!.text,
+                                'birthday': _controllers['birthday']!.text,
+                                'age': _controllers['age']!.text,
+                                'civilStatus': _controllers['civilStatus']!.text,
+                                'gender': _controllers['gender']!.text,
+                                'purok': _controllers['purok']!.text,
+                                'voterStatus': _controllers['voterStatus']!.text,
+                                'email': _controllers['email']!.text,
+                                'contact': _controllers['contact']!.text,
+                                'occupation': _controllers['occupation']!.text,
+                                'citizenship': _controllers['citizenship']!.text,
+                                'address': _controllers['address']!.text,
+                                'householdNo': _controllers['householdNo']!.text,
+                                'profileImage': imageUrl,
+                                'createdAt': FieldValue.serverTimestamp(),
+                              };
+                              try {
+                                await saveResidentToFirestore(residentData);
+                                setState(() { _isUploading = false; });
+                                Navigator.pop(context);
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text('Success'),
+                                    content: Text('Resident added successfully!'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } catch (e) {
+                                setState(() { _isUploading = false; });
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: Text('Error'),
+                                    content: Text('Failed to add resident. Please try again.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          child: _isUploading ? CircularProgressIndicator(color: Colors.white) : Text('Add'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurple,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
+                            textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                Divider(height: 1, thickness: 1),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('Cancel'),
-                      ),
-                      SizedBox(width: 12),
-                      ElevatedButton(
-                        onPressed: () {},
-                        child: Text('Save'),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.deepPurple,
-                          foregroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: 32, vertical: 14),
-                          textStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -497,26 +625,46 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
     );
   }
 
-  Widget _residentTextField(String hint, {IconData? icon}) {
-    return TextField(
+  Widget _residentTextField(String hint, {IconData? icon, TextEditingController? controller, bool required = true}) {
+    return TextFormField(
+      controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         prefixIcon: icon != null ? Icon(icon) : null,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       ),
+      validator: required
+          ? (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'This field is required';
+              }
+              return null;
+            }
+          : null,
     );
   }
 
-  Widget _residentDropdown(List<String> items, String hint) {
+  Widget _residentDropdown(List<String> items, String hint, {TextEditingController? controller, bool required = true}) {
     return DropdownButtonFormField<String>(
+      value: controller?.text.isNotEmpty == true ? controller!.text : null,
       decoration: InputDecoration(
         hintText: hint,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
         contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       ),
       items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
-      onChanged: (value) {},
+      onChanged: (value) {
+        if (controller != null) controller.text = value ?? '';
+      },
+      validator: required
+          ? (value) {
+              if (value == null || value.isEmpty) {
+                return 'This field is required';
+              }
+              return null;
+            }
+          : null,
     );
   }
 } 
