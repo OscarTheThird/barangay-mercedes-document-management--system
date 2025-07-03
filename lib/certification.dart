@@ -1,29 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-class BarangayClearancePage extends StatefulWidget {
+class CertificationPage extends StatefulWidget {
   @override
-  _BarangayClearancePageState createState() => _BarangayClearancePageState();
+  _CertificationPageState createState() => _CertificationPageState();
 }
 
-class _BarangayClearancePageState extends State<BarangayClearancePage>
-    with SingleTickerProviderStateMixin {
+class _CertificationPageState extends State<CertificationPage> with SingleTickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
+  final TextEditingController _idController = TextEditingController();
+  final TextEditingController _purposeController = TextEditingController();
+  bool _isSubmitting = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
-  // Form Controllers
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _purokController = TextEditingController();
-  final TextEditingController _purposeController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _idController = TextEditingController();
-  String _selectedCivilStatus = 'Single';
-  final List<String> _civilStatusOptions = ['Single', 'Married', 'Widowed'];
-
-  bool _isSubmitting = false;
-  int _currentStep = 0;
 
   @override
   void initState() {
@@ -42,11 +30,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
   void dispose() {
     _animationController.dispose();
     _idController.dispose();
-    _fullNameController.dispose();
-    _ageController.dispose();
-    _purokController.dispose();
     _purposeController.dispose();
-    _dateController.dispose();
     super.dispose();
   }
 
@@ -56,24 +40,10 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
       appBar: AppBar(
         iconTheme: IconThemeData(color: Colors.white),
         title: Text(
-          'Barangay Clearance',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-          ),
+          'Certification',
+          style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.deepPurple,
-        elevation: 0,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Colors.deepPurple, Colors.deepPurple.shade400],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-          ),
-        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -100,8 +70,6 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
                   _buildProcessSteps(),
                   SizedBox(height: 30),
                   _buildApplicationForm(),
-                  SizedBox(height: 30),
-                  _buildImportantNotes(),
                 ],
               ),
             ),
@@ -141,7 +109,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(
-                  Icons.verified_user,
+                  Icons.verified,
                   color: Colors.white,
                   size: 24,
                 ),
@@ -152,7 +120,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Barangay Clearance Application',
+                      'Certification Application',
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -160,7 +128,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
                       ),
                     ),
                     Text(
-                      'Digital clearance application',
+                      'Digital certification application',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.deepPurple.shade600,
@@ -173,7 +141,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
           ),
           SizedBox(height: 16),
           Text(
-            'Apply for a barangay clearance certificate online. This clearance certifies your good moral character and standing in the community.',
+            'Apply for a barangay certification online. This certification is issued upon request for whatever legal purpose it may serve.',
             style: TextStyle(
               fontSize: 16,
               color: Colors.deepPurple.shade700,
@@ -203,7 +171,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Clearance Process',
+            'Certification Process',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -214,30 +182,23 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
           _buildProcessStep(
             1,
             'Submit Application',
-            'Complete the clearance application form with personal details',
+            'Complete the certification application form with your details',
             Icons.edit_document,
-            _currentStep >= 0,
+            true,
           ),
           _buildProcessStep(
             2,
-            'Background Check',
-            'Barangay office will conduct background verification',
-            Icons.search,
-            _currentStep >= 1,
+            'Review & Approval',
+            'Barangay officials will review and approve your certification',
+            Icons.verified,
+            false,
           ),
           _buildProcessStep(
             3,
-            'Review & Approval',
-            'Barangay officials will review and approve your clearance',
-            Icons.verified,
-            _currentStep >= 2,
-          ),
-          _buildProcessStep(
-            4,
             'Collection',
-            'Visit the barangay office to collect your clearance',
+            'Visit the barangay office to collect your certification',
             Icons.assignment_turned_in,
-            _currentStep >= 3,
+            false,
           ),
         ],
       ),
@@ -310,7 +271,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Personal Information',
+              'Certification Information',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -336,12 +297,12 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
             _buildTextFormField(
               controller: _purposeController,
               label: 'Purpose',
-              hint: 'State the purpose of this clearance',
+              hint: 'State the purpose of this certification',
               icon: Icons.assignment,
               maxLines: 3,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter the purpose of this clearance';
+                  return 'Please enter the purpose of this certification';
                 }
                 return null;
               },
@@ -361,13 +322,11 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
     required String hint,
     required IconData icon,
     String? Function(String?)? validator,
-    TextInputType? keyboardType,
     int maxLines = 1,
   }) {
     return TextFormField(
       controller: controller,
       validator: validator,
-      keyboardType: keyboardType,
       maxLines: maxLines,
       decoration: InputDecoration(
         labelText: label,
@@ -398,7 +357,20 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: _isSubmitting ? null : _submitApplication,
+        onPressed: _isSubmitting ? null : () {
+          setState(() {
+            _isSubmitting = true;
+          });
+          // Simulate a delay for submission
+          Future.delayed(Duration(seconds: 2), () {
+            setState(() {
+              _isSubmitting = false;
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Certification application submitted!')),
+            );
+          });
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
@@ -447,184 +419,4 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
       ),
     );
   }
-
-  Widget _buildImportantNotes() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info, color: Colors.amber.shade700),
-              SizedBox(width: 8),
-              Text(
-                'Important Information',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amber.shade800,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          _buildNoteItem('Processing time: 5-7 business days'),
-          _buildNoteItem('Background verification will be conducted'),
-          _buildNoteItem('SMS and email notifications will be sent'),
-          _buildNoteItem('Bring valid government ID for pickup'),
-          _buildNoteItem('Clearance fee: ₱50 (payable upon pickup)'),
-          _buildNoteItem('Valid for 6 months from date of issue'),
-          _buildNoteItem('Office hours: Monday-Friday, 8:00 AM - 5:00 PM'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoteItem(String text) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('• ', style: TextStyle(color: Colors.amber.shade700, fontSize: 16)),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: Colors.amber.shade800,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _submitApplication() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isSubmitting = true;
-      });
-
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
-
-      setState(() {
-        _isSubmitting = false;
-      });
-
-      // Show success dialog
-      _showSuccessDialog();
-    }
-  }
-
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: Row(
-            children: [
-              Container(
-                padding: EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.green,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Icon(Icons.check, color: Colors.white, size: 20),
-              ),
-              SizedBox(width: 12),
-              Text(
-                'Application Submitted!',
-                style: TextStyle(
-                  color: Colors.deepPurple.shade800,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Your barangay clearance application has been successfully submitted.',
-                style: TextStyle(fontSize: 16),
-              ),
-              SizedBox(height: 16),
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Reference Number:',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple.shade800,
-                      ),
-                    ),
-                    Text(
-                      'CLR${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16),
-              Text(
-                'What happens next:',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.deepPurple.shade800,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text('• Background verification will be conducted'),
-              Text('• Processing will take 5-7 business days'),
-              Text('• You will receive notifications via SMS and email'),
-              Text('• Visit the barangay office for pickup when notified'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close dialog
-                Navigator.of(context).pop(); // Go back to services
-              },
-              style: TextButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
-                foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
+} 

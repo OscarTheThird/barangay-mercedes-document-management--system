@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'brarangay_clearance.dart';
-import 'residency_certificate.dart';
-import 'barangay_certificate.dart';
+import 'certification.dart';
+import 'complaint.dart';
 import 'barangay_blotter.dart';
+import 'certificate_of_indigency.dart';
 
 class ServicesPage extends StatelessWidget {
   @override
@@ -37,27 +38,40 @@ class ServicesPage extends StatelessWidget {
             ),
             SizedBox(height: screenHeight * 0.03),
             ServiceCard(
-              title: 'RESIDENCY CERTIFICATE',
+              title: 'CERTIFICATION',
               description:
-                  'View the requirements needed for Residency Certificate and acquire online now.',
+                  'View the requirements needed for Certification and acquire online now.',
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => ResidencyCertificatePage()),
+                      builder: (context) => CertificationPage()),
                 );
               },
             ),
             SizedBox(height: screenHeight * 0.03),
             ServiceCard(
-              title: 'BARANGAY CERTIFICATE',
+              title: 'COMPLAINT',
               description:
-                  'Apply for a Barangay Certificate with updated address and purpose.',
+                  'Apply for a Complaint with updated address and purpose.',
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => BarangayCertificatePage()),
+                      builder: (context) => ComplaintPage()),
+                );
+              },
+            ),
+            SizedBox(height: screenHeight * 0.03),
+            ServiceCard(
+              title: 'CERTIFICATE OF INDIGENCY',
+              description:
+                  'Request a Certificate of Indigency for proof of indigency status.',
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => CertificateOfIndigencyPage()),
                 );
               },
             ),
