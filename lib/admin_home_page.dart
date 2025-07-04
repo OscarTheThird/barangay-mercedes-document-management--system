@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'barangay_coordinator_page.dart';
 import 'residents_record.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class AdminHomePage extends StatefulWidget {
   @override
@@ -144,9 +145,11 @@ class _AdminHomePageState extends State<AdminHomePage> {
       child: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: 1000),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: rows,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: rows,
+            ),
           ),
         ),
       ),
@@ -491,4 +494,27 @@ class _AdminHomePageState extends State<AdminHomePage> {
         return 'Admin Dashboard';
     }
   }
+}
+
+Future<void> ensureAllPurokDocsExist() async {
+  final firestore = FirebaseFirestore.instance;
+  final listSnapshots = await firestore.collectionGroup('list').get();
+
+  final purokSet = <String>{};
+  for (final doc in listSnapshots.docs) {
+    final parent = doc.reference.parent.parent;
+    if (parent != null) {
+      purokSet.add(parent.id);
+    }
+  }
+
+  for (final purok in purokSet) {
+    final purokDoc = firestore.collection('residents').doc(purok);
+    final docSnap = await purokDoc.get();
+    if (!docSnap.exists) {
+      await purokDoc.set({'createdAt': FieldValue.serverTimestamp()});
+      print('Created missing parent doc for $purok');
+    }
+  }
+  print('All missing parent docs created!');
 } 

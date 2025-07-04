@@ -63,41 +63,40 @@ class BarangayMercedesPage extends StatelessWidget {
           ),
         ),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: 600,
-            minHeight: MediaQuery.of(context).size.height - kToolbarHeight,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(height: screenHeight * 0.05),
-              Image.asset(
-                'assets/images/mercedeslogo.png',
-                height: screenWidth > 600 ? 300 : 200,
-              ),
-              SizedBox(height: screenHeight * 0.05),
-              Text(
-                'WELCOME TO\nBARANGAY MERCEDES',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: screenWidth > 600 ? 40 : 32,
-                  color: Colors.deepPurple,
+      body: SingleChildScrollView(
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 600),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                SizedBox(height: screenHeight * 0.05),
+                Image.asset(
+                  'assets/images/mercedeslogo.png',
+                  height: screenWidth > 600 ? 300 : 200,
                 ),
-              ),
-              SizedBox(height: screenHeight * 0.02),
-              Text(
-                '54 AH26, Catbalogan City Proper\nAH26, Catbalogan City Proper,\nCatbalogan City, Samar: Monday to Friday (8AM - 5PM)',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: screenWidth > 600 ? 20 : 18,
-                  color: Colors.black,
+                SizedBox(height: screenHeight * 0.05),
+                Text(
+                  'WELCOME TO\nBARANGAY MERCEDES',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: screenWidth > 600 ? 40 : 32,
+                    color: Colors.deepPurple,
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(height: screenHeight * 0.02),
+                Text(
+                  '54 AH26, Catbalogan City Proper\nAH26, Catbalogan City Proper,\nCatbalogan City, Samar: Monday to Friday (8AM - 5PM)',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: screenWidth > 600 ? 20 : 18,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
