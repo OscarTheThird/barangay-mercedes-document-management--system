@@ -450,6 +450,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
             centerTitle: true,
             automaticallyImplyLeading: false,
             iconTheme: IconThemeData(color: Colors.white),
+            leading: !isWide
+                ? Builder(
+                    builder: (context) => IconButton(
+                      icon: Icon(Icons.menu, size: 30, color: Colors.white),
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                      tooltip: 'Open navigation menu',
+                    ),
+                  )
+                : null,
             title: Text(
               _getAppBarTitle(screenWidth),
               style: TextStyle(
