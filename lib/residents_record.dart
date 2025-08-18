@@ -943,9 +943,68 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
     }
   }
 
+  // Global sequence-based ID generation helpers
+  Future<int> _getNextSequencePreview() async {
+    final docRef = FirebaseFirestore.instance.collection('meta').doc('residentCounter');
+    final snap = await docRef.get();
+    if (snap.exists) {
+      final data = snap.data();
+      final dynamic next = data?['nextSequence'] ?? 1;
+      if (next is int) return next;
+      if (next is num) return next.toInt();
+      return 1;
+    }
+    return 1;
+  }
+
+  Future<int> _reserveNextGlobalSequence() async {
+    return FirebaseFirestore.instance.runTransaction<int>((transaction) async {
+      final docRef = FirebaseFirestore.instance.collection('meta').doc('residentCounter');
+      final snapshot = await transaction.get(docRef);
+      int assigned;
+      if (!snapshot.exists) {
+        assigned = 1;
+        transaction.set(docRef, {'nextSequence': 2});
+      } else {
+        final data = snapshot.data() as Map<String, dynamic>;
+        final dynamic current = data['nextSequence'] ?? 1;
+        final int nextSequence = current is int ? current : (current is num ? current.toInt() : 1);
+        assigned = nextSequence;
+        transaction.update(docRef, {'nextSequence': nextSequence + 1});
+      }
+      return assigned;
+    });
+  }
+
+  String _formatResidentId(String purok, int globalSequence) {
+    // Support new format "PUROK - X" or "PUROK - XA" and legacy "Purok X - A/B"
+    final List<RegExp> patterns = [
+      RegExp(r'^PUROK\s*-\s*(\d{1,2})(A)?$', caseSensitive: false),
+      RegExp(r'^Purok\s+(\d{1,2})(?:\s*-\s*([AB]))?$', caseSensitive: false),
+    ];
+    String purokNum = '00';
+    String subPurok = '0';
+    for (final reg in patterns) {
+      final match = reg.firstMatch(purok.trim());
+      if (match != null) {
+        purokNum = match.group(1)!.padLeft(2, '0');
+        final sub = match.group(2);
+        if (sub != null && sub.toUpperCase() == 'A') subPurok = '1';
+        break;
+      }
+    }
+    final sequence = globalSequence.toString().padLeft(4, '0');
+    return '$purokNum$subPurok$sequence';
+  }
+
+  Future<String?> generateResidentIdPreview(String purok) async {
+    final nextSeq = await _getNextSequencePreview();
+    return _formatResidentId(purok, nextSeq);
+  }
+
   Future<String> generateResidentId(String purok) async {
     // Parse purok and sub-purok
-    final purokReg = RegExp(r'^Purok (\d{1,2})(?:\s*-\s*([AB]))?');
+    final purokReg = RegExp(r'^(\d{1,2})(?:\s*-\s*([AB]))?');
     final match = purokReg.firstMatch(purok);
     String purokNum = '00';
     String subPurok = '0';
@@ -1007,7 +1066,7 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
     void updateIdPreview() async {
       final purok = _controllers['purok']!.text;
       if (purok.isNotEmpty) {
-        final id = await generateResidentId(purok);
+        final id = await generateResidentIdPreview(purok);
         idPreviewNotifier.value = id;
       } else {
         idPreviewNotifier.value = null;
@@ -1260,21 +1319,18 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                                       _residentDropdown(['Male', 'Female'], 'Select Gender', controller: _controllers['gender'], readOnly: viewOnly),
                                       SizedBox(height: 12),
                                       _residentDropdown([
-                                        'Purok 1',
-                                        'Purok 2',
-                                        'Purok 3',
-                                        'Purok 4',
-                                        'Purok 4 - A',
-                                        'Purok 4 - B',
-                                        'Purok 5',
-                                        'Purok 6',
-                                        'Purok 7',
-                                        'Purok 8',
-                                        'Purok 9',
-                                        'Purok 10',
-                                        'Purok 11',
-                                        'Purok 12',
-                                        'Purok 13',
+                                        'PUROK - 1',
+                                        'PUROK - 1A',
+                                        'PUROK - 2',
+                                        'PUROK - 3',
+                                        'PUROK - 4',
+                                        'PUROK - 4A',
+                                        'PUROK - 5',
+                                        'PUROK - 5A',
+                                        'PUROK - 6',
+                                        'PUROK - 7',
+                                        'PUROK - 7A',
+                                        'PUROK - 8',
                                       ], 'Select Purok', controller: _controllers['purok'], readOnly: viewOnly),
                                       SizedBox(height: 12),
                                       _residentDropdown(['Voter', 'Non-Voter'], 'Select Voters Status', controller: _controllers['voterStatus'], readOnly: viewOnly),
@@ -1458,21 +1514,18 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                                             Row(
                                               children: [
                                                 Expanded(child: _residentDropdown([
-                                                  'Purok 1',
-                                                  'Purok 2',
-                                                  'Purok 3',
-                                                  'Purok 4',
-                                                  'Purok 4 - A',
-                                                  'Purok 4 - B',
-                                                  'Purok 5',
-                                                  'Purok 6',
-                                                  'Purok 7',
-                                                  'Purok 8',
-                                                  'Purok 9',
-                                                  'Purok 10',
-                                                  'Purok 11',
-                                                  'Purok 12',
-                                                  'Purok 13',
+                                                  'PUROK - 1',
+                                                  'PUROK - 1A',
+                                                  'PUROK - 2',
+                                                  'PUROK - 3',
+                                                  'PUROK - 4',
+                                                  'PUROK - 4A',
+                                                  'PUROK - 5',
+                                                  'PUROK - 5A',
+                                                  'PUROK - 6',
+                                                  'PUROK - 7',
+                                                  'PUROK - 7A',
+                                                  'PUROK - 8',
                                                 ], 'Select Purok', controller: _controllers['purok'], readOnly: viewOnly)),
                                                 SizedBox(width: 8),
                                                 Expanded(child: _residentDropdown(['Voter', 'Non-Voter'], 'Select Voters Status', controller: _controllers['voterStatus'], readOnly: viewOnly)),
@@ -1542,10 +1595,15 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                                               imageUrl = await uploadImageToCloudinary(kIsWeb ? _selectedImageBytes : _selectedImage);
                                             }
                                             String purok = _controllers['purok']!.text;
+                                            String idNumber;
+                                            if (resident == null) {
+                                              final seq = await _reserveNextGlobalSequence();
+                                              idNumber = _formatResidentId(purok, seq);
+                                            } else {
+                                              idNumber = _editingIdNumber ?? '';
+                                            }
                                             Map<String, dynamic> residentData = {
-                                              'idNumber': resident == null
-                                                  ? idPreviewNotifier.value ?? ''
-                                                  : _editingIdNumber ?? '',
+                                              'idNumber': idNumber,
                                               'firstname': _controllers['firstname']!.text,
                                               'middlename': _controllers['middlename']!.text,
                                               'lastname': _controllers['lastname']!.text,
@@ -1662,10 +1720,15 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                                         imageUrl = await uploadImageToCloudinary(kIsWeb ? _selectedImageBytes : _selectedImage);
                                       }
                                       String purok = _controllers['purok']!.text;
+                                      String idNumber;
+                                      if (resident == null) {
+                                        final seq = await _reserveNextGlobalSequence();
+                                        idNumber = _formatResidentId(purok, seq);
+                                      } else {
+                                        idNumber = _editingIdNumber ?? '';
+                                      }
                                       Map<String, dynamic> residentData = {
-                                        'idNumber': resident == null
-                                            ? idPreviewNotifier.value ?? ''
-                                            : _editingIdNumber ?? '',
+                                        'idNumber': idNumber,
                                         'firstname': _controllers['firstname']!.text,
                                         'middlename': _controllers['middlename']!.text,
                                         'lastname': _controllers['lastname']!.text,
@@ -1810,6 +1873,7 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
 
   Widget _residentDropdown(List<String> items, String hint, {TextEditingController? controller, bool required = true, bool readOnly = false}) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       value: controller?.text.isNotEmpty == true ? controller!.text : null,
       decoration: InputDecoration(
         labelText: hint,
@@ -1832,7 +1896,7 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
         ),
         contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
       ),
-      items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+      items: items.map((e) => DropdownMenuItem(value: e, child: Text(e, overflow: TextOverflow.ellipsis))).toList(),
       onChanged: (value) {
         if (controller != null) controller.text = value ?? '';
       },
