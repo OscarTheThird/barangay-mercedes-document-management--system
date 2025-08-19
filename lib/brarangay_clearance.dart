@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'widgets/process_steps.dart';
+import 'widgets/section_card.dart';
+import 'widgets/info_card.dart';
 
 class BarangayClearancePage extends StatefulWidget {
   @override
@@ -97,11 +100,32 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
                 children: [
                   _buildHeader(),
                   SizedBox(height: 30),
-                  _buildProcessSteps(),
+                  SectionCard(
+                    child: ProcessSteps(
+                      heading: 'Clearance Process',
+                      steps: [
+                        ProcessStepData(step: 1, title: 'Submit Application', description: 'Complete the clearance application form with personal details', icon: Icons.edit_document, isActive: _currentStep >= 0),
+                        ProcessStepData(step: 2, title: 'Background Check', description: 'Barangay office will conduct background verification', icon: Icons.search, isActive: _currentStep >= 1),
+                        ProcessStepData(step: 3, title: 'Review & Approval', description: 'Barangay officials will review and approve your clearance', icon: Icons.verified, isActive: _currentStep >= 2),
+                        ProcessStepData(step: 4, title: 'Collection', description: 'Visit the barangay office to collect your clearance', icon: Icons.assignment_turned_in, isActive: _currentStep >= 3),
+                      ],
+                    ),
+                  ),
                   SizedBox(height: 30),
                   _buildApplicationForm(),
                   SizedBox(height: 30),
-                  _buildImportantNotes(),
+                  InfoCard(
+                    title: 'Important Information',
+                    notes: const [
+                      'Processing time: 5-7 business days',
+                      'Background verification will be conducted',
+                      'SMS and email notifications will be sent',
+                      'Bring valid government ID for pickup',
+                      'Clearance fee: ₱50 (payable upon pickup)',
+                      'Valid for 6 months from date of issue',
+                      'Office hours: Monday-Friday, 8:00 AM - 5:00 PM',
+                    ],
+                  ),
                 ],
               ),
             ),
@@ -185,125 +209,10 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
     );
   }
 
-  Widget _buildProcessSteps() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepPurple.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Clearance Process',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.deepPurple.shade800,
-            ),
-          ),
-          SizedBox(height: 16),
-          _buildProcessStep(
-            1,
-            'Submit Application',
-            'Complete the clearance application form with personal details',
-            Icons.edit_document,
-            _currentStep >= 0,
-          ),
-          _buildProcessStep(
-            2,
-            'Background Check',
-            'Barangay office will conduct background verification',
-            Icons.search,
-            _currentStep >= 1,
-          ),
-          _buildProcessStep(
-            3,
-            'Review & Approval',
-            'Barangay officials will review and approve your clearance',
-            Icons.verified,
-            _currentStep >= 2,
-          ),
-          _buildProcessStep(
-            4,
-            'Collection',
-            'Visit the barangay office to collect your clearance',
-            Icons.assignment_turned_in,
-            _currentStep >= 3,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProcessStep(int step, String title, String description, IconData icon, bool isActive) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: isActive ? Colors.deepPurple : Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.white : Colors.grey.shade600,
-              size: 20,
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$step. $title',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isActive ? Colors.deepPurple.shade800 : Colors.grey.shade700,
-                  ),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Process steps replaced by shared widget
 
   Widget _buildApplicationForm() {
-    return Container(
-      padding: EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepPurple.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+    return SectionCard(
       child: Form(
         key: _formKey,
         child: Column(
@@ -448,64 +357,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
     );
   }
 
-  Widget _buildImportantNotes() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.amber.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.amber.shade200),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.info, color: Colors.amber.shade700),
-              SizedBox(width: 8),
-              Text(
-                'Important Information',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.amber.shade800,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 12),
-          _buildNoteItem('Processing time: 5-7 business days'),
-          _buildNoteItem('Background verification will be conducted'),
-          _buildNoteItem('SMS and email notifications will be sent'),
-          _buildNoteItem('Bring valid government ID for pickup'),
-          _buildNoteItem('Clearance fee: ₱50 (payable upon pickup)'),
-          _buildNoteItem('Valid for 6 months from date of issue'),
-          _buildNoteItem('Office hours: Monday-Friday, 8:00 AM - 5:00 PM'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildNoteItem(String text) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('• ', style: TextStyle(color: Colors.amber.shade700, fontSize: 16)),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                color: Colors.amber.shade800,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Notes replaced with shared InfoCard
 
   void _submitApplication() async {
     if (_formKey.currentState!.validate()) {

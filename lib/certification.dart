@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'widgets/process_steps.dart';
+import 'widgets/section_card.dart';
 
 class CertificationPage extends StatefulWidget {
   @override
@@ -67,7 +69,16 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
                 children: [
                   _buildHeader(),
                   SizedBox(height: 30),
-                  _buildProcessSteps(),
+                  SectionCard(
+                    child: ProcessSteps(
+                      heading: 'Certification Process',
+                      steps: const [
+                        ProcessStepData(step: 1, title: 'Submit Application', description: 'Complete the certification application form with your details', icon: Icons.edit_document, isActive: true),
+                        ProcessStepData(step: 2, title: 'Review & Approval', description: 'Barangay officials will review and approve your certification', icon: Icons.verified),
+                        ProcessStepData(step: 3, title: 'Collection', description: 'Visit the barangay office to collect your certification', icon: Icons.assignment_turned_in),
+                      ],
+                    ),
+                  ),
                   SizedBox(height: 30),
                   _buildApplicationForm(),
                 ],
@@ -153,118 +164,10 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
     );
   }
 
-  Widget _buildProcessSteps() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepPurple.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Certification Process',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.deepPurple.shade800,
-            ),
-          ),
-          SizedBox(height: 16),
-          _buildProcessStep(
-            1,
-            'Submit Application',
-            'Complete the certification application form with your details',
-            Icons.edit_document,
-            true,
-          ),
-          _buildProcessStep(
-            2,
-            'Review & Approval',
-            'Barangay officials will review and approve your certification',
-            Icons.verified,
-            false,
-          ),
-          _buildProcessStep(
-            3,
-            'Collection',
-            'Visit the barangay office to collect your certification',
-            Icons.assignment_turned_in,
-            false,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProcessStep(int step, String title, String description, IconData icon, bool isActive) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: isActive ? Colors.deepPurple : Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.white : Colors.grey.shade600,
-              size: 20,
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$step. $title',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isActive ? Colors.deepPurple.shade800 : Colors.grey.shade700,
-                  ),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Process steps replaced by shared widget
 
   Widget _buildApplicationForm() {
-    return Container(
-      padding: EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepPurple.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+    return SectionCard(
       child: Form(
         key: _formKey,
         child: Column(

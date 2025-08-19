@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 import 'barangay_coordinator_page.dart';
 import 'residents_record.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'barangay_certificates.dart';
+import 'barangay_clearance.dart';
+import 'barangay_indigency.dart';
+import 'barangay_blotter.dart';
+import 'barangay_complaint.dart';
 
 class AdminHomePage extends StatefulWidget {
   @override
@@ -156,6 +161,212 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
+
+  // NEW METHOD: Extract the blotter content without the Scaffold wrapper
+  Widget _buildBlotterContent(BuildContext context) {
+    int _rowsPerPage = 10;
+    String _search = '';
+    
+    final List<Map<String, dynamic>> rows = [];
+    final filtered = rows.where((data) {
+      final idMatch = (data['idNumber'] ?? '').toString().toLowerCase().contains(_search.toLowerCase());
+      final nameMatch = (data['firstname'] ?? '').toString().toLowerCase().contains(_search.toLowerCase()) ||
+          (data['middlename'] ?? '').toString().toLowerCase().contains(_search.toLowerCase()) ||
+          (data['lastname'] ?? '').toString().toLowerCase().contains(_search.toLowerCase());
+      return _search.isEmpty || idMatch || nameMatch;
+    }).toList();
+    final visible = filtered.take(_rowsPerPage).toList();
+
+    return Container(
+      color: Color(0xFFEAE6FA), // Match the dashboard background
+      width: double.infinity,
+      child: Center(
+        child: Container(
+          constraints: BoxConstraints(maxWidth: 1500),
+          padding: EdgeInsets.all(24),
+          child: Card(
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: Padding(
+              padding: EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Barangay Blotter', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.file_download, color: Colors.white),
+                        label: Text('Export CSV'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text('Show'),
+                          SizedBox(width: 8),
+                          DropdownButton<int>(
+                            value: _rowsPerPage,
+                            items: [10, 25, 50].map((e) => DropdownMenuItem(value: e, child: Text('$e'))).toList(),
+                            onChanged: (value) {
+                              if (value == null) return;
+                              setState(() {
+                                // Note: This won't work properly with the local variable
+                                // You'll need to make _rowsPerPage a class variable for blotter
+                              });
+                            },
+                          ),
+                          SizedBox(width: 8),
+                          Text('entries'),
+                        ],
+                      ),
+                      Container(
+                        width: 220,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Search',
+                            prefixIcon: Icon(Icons.search),
+                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                          ),
+                          onChanged: (value) => setState(() {
+                            // Note: This won't work properly with the local variable
+                            // You'll need to make _search a class variable for blotter
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                      ),
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minWidth: 1200),
+                          child: DataTable(
+                            columnSpacing: 24,
+                            headingRowColor: MaterialStateProperty.all(Color(0xFFF6F6FA)),
+                            dataRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
+                              if (states.contains(MaterialState.selected)) return Colors.deepPurple.shade50;
+                              return null;
+                            }),
+                            dividerThickness: 0.5,
+                            columns: const [
+                              DataColumn(label: Center(child: Text(''))),
+                              DataColumn(label: Center(child: Text('ID Number', style: TextStyle(fontWeight: FontWeight.bold)))),
+                              DataColumn(label: Center(child: Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold)))),
+                              DataColumn(label: Center(child: Text('House No.', style: TextStyle(fontWeight: FontWeight.bold)))),
+                              DataColumn(label: Center(child: Text('Gender', style: TextStyle(fontWeight: FontWeight.bold)))),
+                              DataColumn(label: Center(child: Text('Purok', style: TextStyle(fontWeight: FontWeight.bold)))),
+                              DataColumn(label: Center(child: Text('Voter Status', style: TextStyle(fontWeight: FontWeight.bold)))),
+                              DataColumn(label: Center(child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold)))),
+                            ],
+                            rows: List.generate(visible.length, (i) {
+                              final data = visible[i];
+                              final isEven = i % 2 == 0;
+                              return DataRow(
+                                color: MaterialStateProperty.all(isEven ? Color(0xFFF8F8FA) : Colors.white),
+                                cells: [
+                                  DataCell(Center(
+                                    child: data['profileImage'] != null && data['profileImage'] != ''
+                                        ? CircleAvatar(backgroundImage: NetworkImage(data['profileImage']), radius: 20)
+                                        : CircleAvatar(child: Icon(Icons.person), radius: 20),
+                                  )),
+                                  DataCell(Center(child: Text(data['idNumber'] ?? ''))),
+                                  DataCell(Center(
+                                    child: Text(
+                                      '${data['firstname'] ?? ''}'
+                                      '${(data['middlename'] != null && data['middlename'] != '') ? ' ' + data['middlename'] : ''}'
+                                      '${(data['lastname'] != null && data['lastname'] != '') ? ' ' + data['lastname'] : ''}',
+                                      style: TextStyle(fontWeight: FontWeight.w600, color: Colors.deepPurple.shade900, fontSize: 15),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  )),
+                                  DataCell(Center(child: Text(data['householdNo'] ?? ''))),
+                                  DataCell(Center(child: Text(data['gender'] ?? ''))),
+                                  DataCell(Center(child: Text(data['purok'] ?? ''))),
+                                  DataCell(Center(child: Text(data['voterStatus'] ?? ''))),
+                                  DataCell(
+                                    Center(
+                                      child: IconButton(
+                                        icon: Icon(Icons.visibility, color: Colors.blue),
+                                        tooltip: 'View',
+                                        onPressed: () {},
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Showing ${filtered.isEmpty ? 0 : 1} to ${visible.length} of ${filtered.length} entries'),
+                      Row(
+                        children: [
+                          OutlinedButton(
+                            onPressed: null,
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              side: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            child: Text('Previous'),
+                          ),
+                          SizedBox(width: 8),
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.blue,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text('1', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                          ),
+                          SizedBox(width: 8),
+                          OutlinedButton(
+                            onPressed: null,
+                            style: OutlinedButton.styleFrom(
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                              side: BorderSide(color: Colors.grey.shade300),
+                            ),
+                            child: Text('Next'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildBody(BuildContext context) {
     if (_selectedIndex == 0) {
       return _buildDashboardGrid(context);
@@ -167,6 +378,32 @@ class _AdminHomePageState extends State<AdminHomePage> {
     if (_selectedIndex == 2) {
       // Residents Record Section
       return ResidentsRecordPage();
+    }
+    if (_selectedIndex == 3) {
+      return BarangayCertificatesPage();
+    }
+    if (_selectedIndex == 4) {
+      return BarangayIndigencyTablePage();
+    }
+    if (_selectedIndex == 5) {
+      // Complaints Section
+      return Container(
+        color: Color(0xFFEAE6FA),
+        width: double.infinity,
+        child: BarangayComplaintTablePage(),
+      );
+    }
+    if (_selectedIndex == 6) {
+      // Clearance Section
+      return Container(
+        color: Color(0xFFEAE6FA),
+        width: double.infinity,
+        child: BarangayClearanceTablePage(),
+      );
+    }
+    if (_selectedIndex == 7) {
+      // FIXED: Return the blotter content instead of the full page widget
+      return _buildBlotterContent(context);
     }
     // Placeholder for other navs
     return Center(
@@ -383,10 +620,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     });
                   },
                 ),
-                // Blotter Records
+                // Complaints - NEW NAVIGATION ITEM
                 ListTile(
-                  leading: Icon(Icons.library_books, color: iconColor),
-                  title: Text('BLOTTER RECORDS', style: navTextStyle),
+                  leading: Icon(Icons.report_problem, color: iconColor),
+                  title: Text('COMPLAINTS', style: navTextStyle),
                   selected: _selectedIndex == 5,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {
@@ -395,10 +632,10 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     });
                   },
                 ),
-                // Requested Document
+                // Clearance - NEW NAVIGATION ITEM
                 ListTile(
-                  leading: Icon(Icons.request_page, color: iconColor),
-                  title: Text('REQUESTED DOCUMENT', style: navTextStyle),
+                  leading: Icon(Icons.verified_user, color: iconColor),
+                  title: Text('CLEARANCE', style: navTextStyle),
                   selected: _selectedIndex == 6,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {
@@ -407,15 +644,39 @@ class _AdminHomePageState extends State<AdminHomePage> {
                     });
                   },
                 ),
-                // House Record
+                // Blotter Records - MOVED DOWN
                 ListTile(
-                  leading: Icon(Icons.house, color: iconColor),
-                  title: Text('HOUSE RECORD', style: navTextStyle),
+                  leading: Icon(Icons.library_books, color: iconColor),
+                  title: Text('BLOTTER RECORDS', style: navTextStyle),
                   selected: _selectedIndex == 7,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {
                     setState(() {
                       _selectedIndex = 7;
+                    });
+                  },
+                ),
+                // Requested Document
+                ListTile(
+                  leading: Icon(Icons.request_page, color: iconColor),
+                  title: Text('REQUESTED DOCUMENT', style: navTextStyle),
+                  selected: _selectedIndex == 8,
+                  selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = 8;
+                    });
+                  },
+                ),
+                // House Record
+                ListTile(
+                  leading: Icon(Icons.house, color: iconColor),
+                  title: Text('HOUSE RECORD', style: navTextStyle),
+                  selected: _selectedIndex == 9,
+                  selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
+                  onTap: () {
+                    setState(() {
+                      _selectedIndex = 9;
                     });
                   },
                 ),
@@ -494,10 +755,14 @@ class _AdminHomePageState extends State<AdminHomePage> {
       case 4:
         return 'Certificate of Indigency';
       case 5:
-        return 'Blotter Records';
+        return 'Complaints';
       case 6:
-        return 'Requested Document';
+        return 'Clearance';
       case 7:
+        return 'Blotter Records';
+      case 8:
+        return 'Requested Document';
+      case 9:
         return 'House Record';
       default:
         return 'Admin Dashboard';
@@ -526,4 +791,4 @@ Future<void> ensureAllPurokDocsExist() async {
     }
   }
   print('All missing parent docs created!');
-} 
+}

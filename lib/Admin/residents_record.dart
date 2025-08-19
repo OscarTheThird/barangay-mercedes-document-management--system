@@ -8,291 +8,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:file_picker/file_picker.dart';
 import 'dart:typed_data';
-
-// Custom Professional Dialog Widget
-class ProfessionalDialog extends StatelessWidget {
-  final String title;
-  final String message;
-  final String? primaryButtonText;
-  final String? secondaryButtonText;
-  final VoidCallback? onPrimaryPressed;
-  final VoidCallback? onSecondaryPressed;
-  final IconData? icon;
-  final Color? iconColor;
-  final Color? primaryButtonColor;
-  final bool isError;
-
-  const ProfessionalDialog({
-    Key? key,
-    required this.title,
-    required this.message,
-    this.primaryButtonText,
-    this.secondaryButtonText,
-    this.onPrimaryPressed,
-    this.onSecondaryPressed,
-    this.icon,
-    this.iconColor,
-    this.primaryButtonColor,
-    this.isError = false,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 400,
-        padding: EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8.0,
-              offset: Offset(0.0, 4.0),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icon
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: (iconColor ?? (isError ? Colors.red.shade50 : Colors.green.shade50)),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon ?? (isError ? Icons.error_outline : Icons.check_circle_outline),
-                size: 32,
-                color: iconColor ?? (isError ? Colors.red.shade600 : Colors.green.shade600),
-              ),
-            ),
-            SizedBox(height: 16),
-            
-            // Title
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 12),
-            
-            // Message
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-                height: 1.3,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 24),
-            
-            // Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                if (secondaryButtonText != null) ...[
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: onSecondaryPressed ?? () => Navigator.pop(context),
-                      style: OutlinedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        side: BorderSide(color: Colors.grey.shade400),
-                      ),
-                      child: Text(
-                        secondaryButtonText!,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.grey.shade700,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 12),
-                ],
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: onPrimaryPressed ?? () => Navigator.pop(context),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryButtonColor ?? (isError ? Colors.red.shade600 : Colors.green.shade600),
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 1,
-                    ),
-                    child: Text(
-                      primaryButtonText ?? 'OK',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Custom Confirmation Dialog Widget
-class ProfessionalConfirmationDialog extends StatelessWidget {
-  final String title;
-  final String message;
-  final String confirmText;
-  final String cancelText;
-  final VoidCallback? onConfirm;
-  final VoidCallback? onCancel;
-  final Color? confirmButtonColor;
-
-  const ProfessionalConfirmationDialog({
-    Key? key,
-    required this.title,
-    required this.message,
-    this.confirmText = 'Confirm',
-    this.cancelText = 'Cancel',
-    this.onConfirm,
-    this.onCancel,
-    this.confirmButtonColor,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      child: Container(
-        width: 400,
-        padding: EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 8.0,
-              offset: Offset(0.0, 4.0),
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Warning Icon
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.orange.shade50,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.warning_amber_rounded,
-                size: 32,
-                color: Colors.orange.shade600,
-              ),
-            ),
-            SizedBox(height: 16),
-            
-            // Title
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey.shade800,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 12),
-            
-            // Message
-            Text(
-              message,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey.shade600,
-                height: 1.3,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 24),
-            
-            // Buttons
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: onCancel ?? () => Navigator.pop(context, false),
-                    style: OutlinedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      side: BorderSide(color: Colors.grey.shade400),
-                    ),
-                    child: Text(
-                      cancelText,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey.shade700,
-                      ),
-                    ),
-                  ),
-                ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: onConfirm ?? () => Navigator.pop(context, true),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: confirmButtonColor ?? Colors.red.shade600,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 1,
-                    ),
-                    child: Text(
-                      confirmText,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+import 'package:document_management_system/widgets/dialogs.dart';
+ // Adjust the import based on your project structure
 
 class ResidentsRecordPage extends StatefulWidget {
   @override
@@ -679,128 +396,137 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                             ),
                           ] else ...[
                             // Desktop Table View
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
-                          ),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              columnSpacing: 24,
-                              headingRowColor: MaterialStateProperty.all(Color(0xFFF6F6FA)),
-                              dataRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
-                                if (states.contains(MaterialState.selected)) return Colors.deepPurple.shade50;
-                                return null;
-                              }),
-                              dividerThickness: 0.5,
-                              columns: [
-                                DataColumn(
-                                  label: Center(child: Text('')),
+                        Center(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
                                 ),
-                                DataColumn(
-                                  label: Center(child: Text('ID Number', style: TextStyle(fontWeight: FontWeight.bold))),
-                                ),
-                                DataColumn(
-                                  label: Container(
-                                    width: 220,
-                                    alignment: Alignment.center,
-                                    child: Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                                  ),
-                                ),
-                                DataColumn(
-                                  label: Center(child: Text('House No.', style: TextStyle(fontWeight: FontWeight.bold))),
-                                ),
-                                DataColumn(
-                                  label: Center(child: Text('Purok', style: TextStyle(fontWeight: FontWeight.bold))),
-                                ),
-                                DataColumn(
-                                  label: Center(child: Text('Age', style: TextStyle(fontWeight: FontWeight.bold))),
-                                ),
-                                DataColumn(
-                                  label: Center(child: Text('Civil Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                                ),
-                                DataColumn(
-                                  label: Center(child: Text('Gender', style: TextStyle(fontWeight: FontWeight.bold))),
-                                ),
-                                DataColumn(
-                                  label: Center(child: Text('Voter Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                                ),
-                                DataColumn(
-                                  label: Container(
-                                    width: 120,
-                                    alignment: Alignment.center,
-                                    child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                                  ),
-                                ),
-                              ],
-                              rows: List.generate(filteredResidentsFiltered.take(_rowsPerPage).length, (i) {
-                                final data = filteredResidentsFiltered[i];
-                                final isEven = i % 2 == 0;
-                                return DataRow(
-                                  color: MaterialStateProperty.all(isEven ? Color(0xFFF8F8FA) : Colors.white),
-                                  cells: [
-                                    DataCell(Center(child: data['profileImage'] != null && data['profileImage'] != ''
-                                        ? CircleAvatar(backgroundImage: NetworkImage(data['profileImage']), radius: 20)
-                                        : CircleAvatar(child: Icon(Icons.person), radius: 20))),
-                                    DataCell(Center(child: Text(data['idNumber'] ?? ''))),
-                                    DataCell(
-                                      Container(
-                                        width: 220,
-                                        alignment: Alignment.center,
-                                        child: Text(
-                                          (data['firstname'] ?? '') +
-                                          (data['middlename'] != null && data['middlename'] != '' ? ' ' + data['middlename'] : '') +
-                                          (data['lastname'] != null && data['lastname'] != '' ? ' ' + data['lastname'] : ''),
-                                          style: TextStyle(fontWeight: FontWeight.w600, color: Colors.deepPurple.shade900, fontSize: 15),
-                                          textAlign: TextAlign.center,
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(minWidth: constraints.maxWidth),
+                                    child: DataTable(
+                                      columnSpacing: 24,
+                                      headingRowColor: MaterialStateProperty.all(Color(0xFFF6F6FA)),
+                                      dataRowColor: MaterialStateProperty.resolveWith<Color?>((Set<MaterialState> states) {
+                                        if (states.contains(MaterialState.selected)) return Colors.deepPurple.shade50;
+                                        return null;
+                                      }),
+                                      dividerThickness: 0.5,
+                                      columns: [
+                                        DataColumn(
+                                          label: Center(child: Text('')),
                                         ),
-                                      ),
-                                    ),
-                                    DataCell(Center(child: Text(data['householdNo'] ?? ''))),
-                                    DataCell(Center(child: Text(data['purok'] ?? ''))),
-                                    DataCell(Center(child: Text(data['age']?.toString() ?? ''))),
-                                    DataCell(Center(child: Text(data['civilStatus'] ?? ''))),
-                                    DataCell(Center(child: Text(data['gender'] ?? ''))),
-                                    DataCell(Center(child: Text(data['voterStatus'] ?? ''))),
-                                    DataCell(
-                                      Container(
-                                        width: 120,
-                                        alignment: Alignment.center,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          mainAxisSize: MainAxisSize.max,
-                                          children: [
-                                            IconButton(
-                                              icon: Icon(Icons.edit, color: Colors.green),
-                                              tooltip: 'Edit',
-                                              onPressed: () {
-                                                _showResidentForm(resident: data, viewOnly: false);
-                                              },
+                                        DataColumn(
+                                          label: Center(child: Text('ID Number', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        ),
+                                        DataColumn(
+                                          label: Container(
+                                            width: 220,
+                                            alignment: Alignment.center,
+                                            child: Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                          ),
+                                        ),
+                                        DataColumn(
+                                          label: Center(child: Text('House No.', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        ),
+                                        DataColumn(
+                                          label: Center(child: Text('Purok', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        ),
+                                        DataColumn(
+                                          label: Center(child: Text('Age', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        ),
+                                        DataColumn(
+                                          label: Center(child: Text('Civil Status', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        ),
+                                        DataColumn(
+                                          label: Center(child: Text('Gender', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        ),
+                                        DataColumn(
+                                          label: Center(child: Text('Voter Status', style: TextStyle(fontWeight: FontWeight.bold))),
+                                        ),
+                                        DataColumn(
+                                          label: Container(
+                                            width: 120,
+                                            alignment: Alignment.center,
+                                            child: Text('Action', style: TextStyle(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                                          ),
+                                        ),
+                                      ],
+                                      rows: List.generate(filteredResidentsFiltered.take(_rowsPerPage).length, (i) {
+                                        final data = filteredResidentsFiltered[i];
+                                        final isEven = i % 2 == 0;
+                                        return DataRow(
+                                          color: MaterialStateProperty.all(isEven ? Color(0xFFF8F8FA) : Colors.white),
+                                          cells: [
+                                            DataCell(Center(child: data['profileImage'] != null && data['profileImage'] != ''
+                                                ? CircleAvatar(backgroundImage: NetworkImage(data['profileImage']), radius: 20)
+                                                : CircleAvatar(child: Icon(Icons.person), radius: 20))),
+                                            DataCell(Center(child: Text(data['idNumber'] ?? ''))),
+                                            DataCell(
+                                              Container(
+                                                width: 220,
+                                                alignment: Alignment.center,
+                                                child: Text(
+                                                  (data['firstname'] ?? '') +
+                                                  (data['middlename'] != null && data['middlename'] != '' ? ' ' + data['middlename'] : '') +
+                                                  (data['lastname'] != null && data['lastname'] != '' ? ' ' + data['lastname'] : ''),
+                                                  style: TextStyle(fontWeight: FontWeight.w600, color: Colors.deepPurple.shade900, fontSize: 15),
+                                                  textAlign: TextAlign.center,
+                                                ),
+                                              ),
                                             ),
-                                            IconButton(
-                                              icon: Icon(Icons.visibility, color: Colors.blue),
-                                              tooltip: 'View',
-                                              onPressed: () {
-                                                _showResidentForm(resident: data, viewOnly: true);
-                                              },
-                                            ),
-                                            IconButton(
-                                              icon: Icon(Icons.delete, color: Colors.red),
-                                              tooltip: 'Delete',
-                                              onPressed: () {
-                                                _deleteResident(data);
-                                              },
+                                            DataCell(Center(child: Text(data['householdNo'] ?? ''))),
+                                            DataCell(Center(child: Text(data['purok'] ?? ''))),
+                                            DataCell(Center(child: Text(data['age']?.toString() ?? ''))),
+                                            DataCell(Center(child: Text(data['civilStatus'] ?? ''))),
+                                            DataCell(Center(child: Text(data['gender'] ?? ''))),
+                                            DataCell(Center(child: Text(data['voterStatus'] ?? ''))),
+                                            DataCell(
+                                              Container(
+                                                width: 120,
+                                                alignment: Alignment.center,
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  mainAxisSize: MainAxisSize.max,
+                                                  children: [
+                                                    IconButton(
+                                                      icon: Icon(Icons.edit, color: Colors.green),
+                                                      tooltip: 'Edit',
+                                                      onPressed: () {
+                                                        _showResidentForm(resident: data, viewOnly: false);
+                                                      },
+                                                    ),
+                                                    IconButton(
+                                                      icon: Icon(Icons.visibility, color: Colors.blue),
+                                                      tooltip: 'View',
+                                                      onPressed: () {
+                                                        _showResidentForm(resident: data, viewOnly: true);
+                                                      },
+                                                    ),
+                                                    IconButton(
+                                                      icon: Icon(Icons.delete, color: Colors.red),
+                                                      tooltip: 'Delete',
+                                                      onPressed: () {
+                                                        _deleteResident(data);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                             ),
                                           ],
-                                        ),
-                                      ),
+                                        );
+                                      }),
                                     ),
-                                  ],
-                                );
-                              }),
-                            ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
                           ],
@@ -1565,17 +1291,41 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                           padding: EdgeInsets.only(right: 32, bottom: 24, top: 16),
                           child: Align(
                             alignment: Alignment.bottomRight,
-                            child:                               ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text('Close'),
-                              style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.grey.shade600,
-                                foregroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                                  textStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  elevation: 2,
-                              ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text('Close'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.grey.shade600,
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                                    textStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 2,
+                                  ),
+                                ),
+                                SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                    Future.microtask(() {
+                                      _showResidentForm(resident: resident, viewOnly: false);
+                                    });
+                                  },
+                                  icon: Icon(Icons.edit, size: 18),
+                                  label: Text('Document'),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.deepPurple.shade600,
+                                    foregroundColor: Colors.white,
+                                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                                    textStyle: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    elevation: 2,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         )

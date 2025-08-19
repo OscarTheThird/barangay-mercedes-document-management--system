@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'widgets/process_steps.dart';
+import 'widgets/section_card.dart';
 
 class ComplaintPage extends StatefulWidget {
   @override
@@ -83,7 +85,16 @@ class _ComplaintPageState extends State<ComplaintPage> with SingleTickerProvider
                 children: [
                   _buildHeader(),
                   SizedBox(height: 30),
-                  _buildProcessSteps(),
+                  SectionCard(
+                    child: ProcessSteps(
+                      heading: 'Complaint Process',
+                      steps: const [
+                        ProcessStepData(step: 1, title: 'Submit Complaint', description: 'Complete the complaint form with your details', icon: Icons.edit_document, isActive: true),
+                        ProcessStepData(step: 2, title: 'Review & Mediation', description: 'Barangay officials will review and mediate the complaint', icon: Icons.verified),
+                        ProcessStepData(step: 3, title: 'Resolution & Filing', description: 'Resolution or official filing of the complaint', icon: Icons.assignment_turned_in),
+                      ],
+                    ),
+                  ),
                   SizedBox(height: 30),
                   _buildFormSection(),
                 ],
@@ -169,118 +180,10 @@ class _ComplaintPageState extends State<ComplaintPage> with SingleTickerProvider
     );
   }
 
-  Widget _buildProcessSteps() {
-    return Container(
-      padding: EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepPurple.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Complaint Process',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.deepPurple.shade800,
-            ),
-          ),
-          SizedBox(height: 16),
-          _buildProcessStep(
-            1,
-            'Submit Complaint',
-            'Complete the complaint form with your details',
-            Icons.edit_document,
-            true,
-          ),
-          _buildProcessStep(
-            2,
-            'Review & Mediation',
-            'Barangay officials will review and mediate the complaint',
-            Icons.verified,
-            false,
-          ),
-          _buildProcessStep(
-            3,
-            'Resolution & Filing',
-            'Resolution or official filing of the complaint',
-            Icons.assignment_turned_in,
-            false,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProcessStep(int step, String title, String description, IconData icon, bool isActive) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: isActive ? Colors.deepPurple : Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Icon(
-              icon,
-              color: isActive ? Colors.white : Colors.grey.shade600,
-              size: 20,
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$step. $title',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: isActive ? Colors.deepPurple.shade800 : Colors.grey.shade700,
-                  ),
-                ),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey.shade600,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Process steps replaced by shared widget
 
   Widget _buildFormSection() {
-    return Container(
-      padding: EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.deepPurple.withOpacity(0.08),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+    return SectionCard(
       child: Form(
         key: _formKey,
         child: Column(
