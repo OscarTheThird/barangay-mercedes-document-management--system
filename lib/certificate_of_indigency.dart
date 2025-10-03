@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'widgets/process_steps.dart';
 import 'widgets/section_card.dart';
 
@@ -164,8 +166,6 @@ class _CertificateOfIndigencyPageState extends State<CertificateOfIndigencyPage>
     );
   }
 
-  // Process steps replaced by shared widget
-
   Widget _buildApplicationForm() {
     return SectionCard(
       child: Form(
@@ -185,11 +185,11 @@ class _CertificateOfIndigencyPageState extends State<CertificateOfIndigencyPage>
             // ID
             _buildTextFormField(
               controller: _idController,
-              label: 'ID',
-              hint: 'Enter your ID number',
+              label: 'ID Number',
+              hint: 'Enter your resident ID number',
               icon: Icons.badge,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Please enter your ID number';
                 }
                 return null;
@@ -204,7 +204,7 @@ class _CertificateOfIndigencyPageState extends State<CertificateOfIndigencyPage>
               icon: Icons.assignment,
               maxLines: 3,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Please enter the purpose of this certificate';
                 }
                 return null;
@@ -260,20 +260,7 @@ class _CertificateOfIndigencyPageState extends State<CertificateOfIndigencyPage>
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: _isSubmitting ? null : () {
-          setState(() {
-            _isSubmitting = true;
-          });
-          // Simulate a delay for submission
-          Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _isSubmitting = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Certificate of Indigency application submitted!')),
-            );
-          });
-        },
+        onPressed: _isSubmitting ? null : _submitApplication,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
@@ -282,6 +269,7 @@ class _CertificateOfIndigencyPageState extends State<CertificateOfIndigencyPage>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+          disabledBackgroundColor: Colors.deepPurple.withOpacity(0.5),
         ),
         child: _isSubmitting
             ? Row(
@@ -322,4 +310,178 @@ class _CertificateOfIndigencyPageState extends State<CertificateOfIndigencyPage>
       ),
     );
   }
-} 
+
+  void _submitApplication() async {
+    // Validate form
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Check if user is authenticated
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You must be logged in to submit an application'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      // Generate requestId
+      final requestId = 'IND${DateTime.now().millisecondsSinceEpoch}';
+
+      // Create document data
+      final indigencyData = {
+        'requestId': requestId,
+        'idNumber': _idController.text.trim(),
+        'purpose': _purposeController.text.trim(),
+        'userId': user.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+        'status': 'pending',
+      };
+
+      // Submit to Firestore
+      await FirebaseFirestore.instance
+          .collection('certificate_of_indigency')
+          .doc(requestId)
+          .set(indigencyData);
+
+      // Clear form
+      _idController.clear();
+      _purposeController.clear();
+
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      // Show success dialog
+      _showSuccessDialog(requestId);
+    } catch (e) {
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error submitting application: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
+    }
+  }
+
+  void _showSuccessDialog(String requestId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.green,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Icon(Icons.check, color: Colors.white, size: 20),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Application Submitted!',
+                  style: TextStyle(
+                    color: Colors.deepPurple.shade800,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Your certificate of indigency application has been successfully submitted.',
+                style: TextStyle(fontSize: 16),
+              ),
+              SizedBox(height: 16),
+              Container(
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Reference Number:',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple.shade800,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      requestId,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16),
+              Text(
+                'What happens next:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple.shade800,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text('• Your application will be reviewed'),
+              Text('• Processing will take 3-5 business days'),
+              Text('• You will receive notifications via SMS and email'),
+              Text('• Visit the barangay office for pickup when notified'),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close dialog
+                Navigator.of(context).pop(); // Go back to services
+              },
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.deepPurple,
+                foregroundColor: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}

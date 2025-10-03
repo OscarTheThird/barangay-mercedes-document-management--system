@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'widgets/process_steps.dart';
 import 'widgets/section_card.dart';
 
@@ -14,6 +16,10 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
   bool _isSubmitting = false;
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
+
+  // Firebase instances
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -34,6 +40,279 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
     _idController.dispose();
     _purposeController.dispose();
     super.dispose();
+  }
+
+  // Generate request ID with timestamp
+  String _generateRequestId() {
+    return 'CERT${DateTime.now().millisecondsSinceEpoch}';
+  }
+
+  // Submit certification request to Firestore
+  Future<void> _submitCertification() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Check if user is authenticated
+    User? currentUser = _auth.currentUser;
+    if (currentUser == null) {
+      _showErrorDialog('Authentication Error', 'You must be logged in to submit a certification request.');
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      // Generate request ID
+      String requestId = _generateRequestId();
+
+      // Prepare data for Firestore
+      Map<String, dynamic> certificationData = {
+        'requestId': requestId,
+        'idNumber': _idController.text.trim(),
+        'purpose': _purposeController.text.trim(),
+        'userId': currentUser.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+        'status': 'pending',
+      };
+
+      // Submit to Firestore
+      await _firestore
+          .collection('certification')
+          .doc(requestId)
+          .set(certificationData);
+
+      // Show success dialog
+      _showSuccessDialog(requestId);
+
+      // Clear form
+      _idController.clear();
+      _purposeController.clear();
+
+    } catch (e) {
+      // Handle errors
+      _showErrorDialog('Submission Failed', 'Failed to submit certification request: ${e.toString()}');
+    } finally {
+      setState(() {
+        _isSubmitting = false;
+      });
+    }
+  }
+
+  // Show success dialog
+  void _showSuccessDialog(String requestId) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          contentPadding: EdgeInsets.all(24),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Success header with icon
+              Row(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      Icons.check,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Application Submitted!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20),
+              
+              // Success message
+              Text(
+                'Your certification application has been successfully submitted.',
+                style: TextStyle(
+                  fontSize: 15,
+                  color: Colors.black87,
+                  height: 1.4,
+                ),
+              ),
+              SizedBox(height: 20),
+              
+              // Reference number section
+              Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.deepPurple.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Reference Number:',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.deepPurple.shade700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      requestId,
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.deepPurple.shade900,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 20),
+              
+              // What happens next section
+              Text(
+                'What happens next:',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple.shade800,
+                ),
+              ),
+              SizedBox(height: 12),
+              
+              _buildNextStepItem('Your application will be reviewed'),
+              SizedBox(height: 8),
+              _buildNextStepItem('Processing will take 3-5 business days'),
+              SizedBox(height: 8),
+              _buildNextStepItem('You will receive notifications via SMS and email'),
+              SizedBox(height: 8),
+              _buildNextStepItem('Visit the barangay office for pickup when notified'),
+              SizedBox(height: 24),
+              
+              // OK button
+              Align(
+                alignment: Alignment.centerRight,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    foregroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Text(
+                    'OK',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+  
+  // Helper widget for next step items
+  Widget _buildNextStepItem(String text) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '• ',
+          style: TextStyle(
+            fontSize: 15,
+            color: Colors.black87,
+            height: 1.4,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 15,
+              color: Colors.black87,
+              height: 1.4,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Show error dialog
+  void _showErrorDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.red, size: 28),
+              SizedBox(width: 12),
+              Text(
+                title,
+                style: TextStyle(
+                  color: Colors.red.shade800,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+          content: Text(
+            message,
+            style: TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -164,8 +443,6 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
     );
   }
 
-  // Process steps replaced by shared widget
-
   Widget _buildApplicationForm() {
     return SectionCard(
       child: Form(
@@ -185,7 +462,7 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
             // ID
             _buildTextFormField(
               controller: _idController,
-              label: 'ID',
+              label: 'ID Number',
               hint: 'Enter your ID number',
               icon: Icons.badge,
               validator: (value) {
@@ -260,20 +537,7 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: _isSubmitting ? null : () {
-          setState(() {
-            _isSubmitting = true;
-          });
-          // Simulate a delay for submission
-          Future.delayed(Duration(seconds: 2), () {
-            setState(() {
-              _isSubmitting = false;
-            });
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Certification application submitted!')),
-            );
-          });
-        },
+        onPressed: _isSubmitting ? null : _submitCertification,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.deepPurple,
           foregroundColor: Colors.white,
@@ -322,4 +586,4 @@ class _CertificationPageState extends State<CertificationPage> with SingleTicker
       ),
     );
   }
-} 
+}

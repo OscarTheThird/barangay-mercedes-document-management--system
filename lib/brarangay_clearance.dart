@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'widgets/process_steps.dart';
 import 'widgets/section_card.dart';
 import 'widgets/info_card.dart';
@@ -16,14 +18,8 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
   late Animation<double> _fadeAnimation;
   
   // Form Controllers
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _purokController = TextEditingController();
-  final TextEditingController _purposeController = TextEditingController();
-  final TextEditingController _dateController = TextEditingController();
   final TextEditingController _idController = TextEditingController();
-  String _selectedCivilStatus = 'Single';
-  final List<String> _civilStatusOptions = ['Single', 'Married', 'Widowed'];
+  final TextEditingController _purposeController = TextEditingController();
 
   bool _isSubmitting = false;
   int _currentStep = 0;
@@ -45,11 +41,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
   void dispose() {
     _animationController.dispose();
     _idController.dispose();
-    _fullNameController.dispose();
-    _ageController.dispose();
-    _purokController.dispose();
     _purposeController.dispose();
-    _dateController.dispose();
     super.dispose();
   }
 
@@ -209,8 +201,6 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
     );
   }
 
-  // Process steps replaced by shared widget
-
   Widget _buildApplicationForm() {
     return SectionCard(
       child: Form(
@@ -230,11 +220,11 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
             // ID
             _buildTextFormField(
               controller: _idController,
-              label: 'ID',
-              hint: 'Enter your ID number',
+              label: 'ID Number',
+              hint: 'Enter your resident ID number',
               icon: Icons.badge,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Please enter your ID number';
                 }
                 return null;
@@ -249,7 +239,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
               icon: Icons.assignment,
               maxLines: 3,
               validator: (value) {
-                if (value == null || value.isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Please enter the purpose of this clearance';
                 }
                 return null;
@@ -316,6 +306,7 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
+          disabledBackgroundColor: Colors.deepPurple.withOpacity(0.5),
         ),
         child: _isSubmitting
             ? Row(
@@ -357,27 +348,75 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
     );
   }
 
-  // Notes replaced with shared InfoCard
-
   void _submitApplication() async {
-    if (_formKey.currentState!.validate()) {
-      setState(() {
-        _isSubmitting = true;
-      });
+    // Validate form
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
 
-      // Simulate API call
-      await Future.delayed(Duration(seconds: 2));
+    // Check if user is authenticated
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('You must be logged in to submit an application'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      // Generate requestId
+      final requestId = 'CLR${DateTime.now().millisecondsSinceEpoch}';
+
+      // Create document data
+      final clearanceData = {
+        'requestId': requestId,
+        'idNumber': _idController.text.trim(),
+        'purpose': _purposeController.text.trim(),
+        'userId': user.uid,
+        'timestamp': FieldValue.serverTimestamp(),
+        'status': 'pending',
+      };
+
+      // Submit to Firestore
+      await FirebaseFirestore.instance
+          .collection('barangay_clearance')
+          .doc(requestId)
+          .set(clearanceData);
+
+      // Clear form
+      _idController.clear();
+      _purposeController.clear();
 
       setState(() {
         _isSubmitting = false;
       });
 
       // Show success dialog
-      _showSuccessDialog();
+      _showSuccessDialog(requestId);
+    } catch (e) {
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error submitting application: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 5),
+        ),
+      );
     }
   }
 
-  void _showSuccessDialog() {
+  void _showSuccessDialog(String requestId) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -397,12 +436,14 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
                 child: Icon(Icons.check, color: Colors.white, size: 20),
               ),
               SizedBox(width: 12),
-              Text(
-                'Application Submitted!',
-                style: TextStyle(
-                  color: Colors.deepPurple.shade800,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  'Application Submitted!',
+                  style: TextStyle(
+                    color: Colors.deepPurple.shade800,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ],
@@ -432,8 +473,9 @@ class _BarangayClearancePageState extends State<BarangayClearancePage>
                         color: Colors.deepPurple.shade800,
                       ),
                     ),
+                    SizedBox(height: 4),
                     Text(
-                      'CLR${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}',
+                      requestId,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
