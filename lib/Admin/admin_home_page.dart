@@ -8,6 +8,22 @@ import 'barangay_indigency.dart';
 import 'barangay_blotter.dart';
 import 'barangay_complaint.dart';
 
+// IMPORTANT: A new set of index numbers is used for the sub-menu items
+// 0: Dashboard
+// 1: Brgy Officials and Staff
+// 2: Residents Record
+// 3: Services (The parent item, its index will trigger the collapse/expand)
+// 4: Requested Document (The first item after the new block)
+// 5: House Record
+
+// Sub-nav indices for clarity (these aren't used for _selectedIndex, but for logic)
+const int SERVICE_CERTIFICATES = 10;
+const int SERVICE_INDIGENCY = 11;
+const int SERVICE_COMPLAINTS = 12;
+const int SERVICE_CLEARANCE = 13;
+const int SERVICE_BLOTTER = 14;
+
+
 class AdminHomePage extends StatefulWidget {
   @override
   _AdminHomePageState createState() => _AdminHomePageState();
@@ -15,6 +31,8 @@ class AdminHomePage extends StatefulWidget {
 
 class _AdminHomePageState extends State<AdminHomePage> {
   int _selectedIndex = 0; // 0 = Dashboard
+  // New state variable to control the expansion of the 'Services' menu
+  bool _isServicesExpanded = false;
 
   final List<Map<String, dynamic>> dashboardStats = [
     {
@@ -368,6 +386,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
   }
 
   Widget _buildBody(BuildContext context) {
+    // Handle the new, more organized set of indices
     if (_selectedIndex == 0) {
       return _buildDashboardGrid(context);
     }
@@ -379,13 +398,15 @@ class _AdminHomePageState extends State<AdminHomePage> {
       // Residents Record Section
       return ResidentsRecordPage();
     }
-    if (_selectedIndex == 3) {
+    if (_selectedIndex == SERVICE_CERTIFICATES) {
+      // Barangay Certificates
       return BarangayCertificatesPage();
     }
-    if (_selectedIndex == 4) {
+    if (_selectedIndex == SERVICE_INDIGENCY) {
+      // Certificate of Indigency
       return BarangayIndigencyTablePage();
     }
-    if (_selectedIndex == 5) {
+    if (_selectedIndex == SERVICE_COMPLAINTS) {
       // Complaints Section
       return Container(
         color: Color(0xFFEAE6FA),
@@ -393,7 +414,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
         child: BarangayComplaintTablePage(),
       );
     }
-    if (_selectedIndex == 6) {
+    if (_selectedIndex == SERVICE_CLEARANCE) {
       // Clearance Section
       return Container(
         color: Color(0xFFEAE6FA),
@@ -401,14 +422,23 @@ class _AdminHomePageState extends State<AdminHomePage> {
         child: BarangayClearanceTablePage(),
       );
     }
-    if (_selectedIndex == 7) {
-      // Blotter Section
+    if (_selectedIndex == SERVICE_BLOTTER) {
+      // Blotter Records Section
       return Container(
         color: Color(0xFFEAE6FA),
         width: double.infinity,
         child: BarangayBlotterTablePage(),
       );
     }
+    if (_selectedIndex == 4) {
+      // Requested Document
+      return Center(child: Text('Requested Document Page', style: TextStyle(fontSize: 24, color: Colors.deepPurple)));
+    }
+    if (_selectedIndex == 5) {
+      // House Record
+      return Center(child: Text('House Record Page', style: TextStyle(fontSize: 24, color: Colors.deepPurple)));
+    }
+
     // Placeholder for other navs
     return Center(
       child: Text(
@@ -518,10 +548,39 @@ class _AdminHomePageState extends State<AdminHomePage> {
     );
   }
 
+  // Helper method to create sub-ListTiles with padding and selected state
+  Widget _buildSubNavItem({
+    required int index,
+    required String title,
+    required IconData icon,
+    required Color iconColor,
+    required TextStyle navTextStyle,
+  }) {
+    // Determine if the current sub-item is selected, but only if the main Services is expanded
+    final bool isSelected = _isServicesExpanded && _selectedIndex == index;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0), // Indentation for sub-item
+      child: ListTile(
+        leading: Icon(icon, color: iconColor),
+        title: Text(title, style: navTextStyle),
+        selected: isSelected,
+        selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
+        onTap: () {
+          setState(() {
+            _selectedIndex = index;
+            // Optionally collapse if an item is selected, or keep expanded
+            // _isServicesExpanded = false;
+          });
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
-    var screenHeight = MediaQuery.of(context).size.height;
+    // var screenHeight = MediaQuery.of(context).size.height; // Not used, removed
     final Color drawerBg = Color(0xFF4632A1);
     final Color iconColor = Colors.white;
     final TextStyle navTextStyle = TextStyle(color: Colors.white, fontWeight: FontWeight.w500, fontSize: 15, letterSpacing: 0.5);
@@ -569,6 +628,8 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   onTap: () {
                     setState(() {
                       _selectedIndex = 0;
+                      // Collapse services when a main item is clicked
+                      _isServicesExpanded = false;
                     });
                   },
                 ),
@@ -585,6 +646,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   onTap: () {
                     setState(() {
                       _selectedIndex = 1;
+                      _isServicesExpanded = false;
                     });
                   },
                 ),
@@ -597,90 +659,101 @@ class _AdminHomePageState extends State<AdminHomePage> {
                   onTap: () {
                     setState(() {
                       _selectedIndex = 2;
+                      _isServicesExpanded = false;
                     });
                   },
                 ),
-                // Barangay Certificates
-                ListTile(
-                  leading: Icon(Icons.emoji_events, color: iconColor),
-                  title: Text('BARANGAY CERTIFICATES', style: navTextStyle),
-                  selected: _selectedIndex == 3,
-                  selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 3;
-                    });
-                  },
+                // -------------------------------------------------------------------
+                // NEW: Services - Collapsible Menu (ExpansionTile)
+                Theme(
+                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    tilePadding: EdgeInsets.symmetric(horizontal: 16.0),
+                    leading: Icon(Icons.miscellaneous_services, color: iconColor), // Changed icon to a folder for services
+                    title: Text('SERVICES', style: navTextStyle.copyWith(
+                      color: _isServicesExpanded || (_selectedIndex >= SERVICE_CERTIFICATES && _selectedIndex <= SERVICE_BLOTTER)
+                        ? Colors.amber.shade200 // Highlight text when expanded or sub-item selected
+                        : Colors.white,
+                    )),
+                    trailing: Icon(
+                      _isServicesExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                      color: iconColor,
+                    ),
+                    initiallyExpanded: _isServicesExpanded,
+                    onExpansionChanged: (bool expanded) {
+                      setState(() {
+                        _isServicesExpanded = expanded;
+                      });
+                    },
+                    children: <Widget>[
+                      // Barangay Certificates (Icon: Trophy)
+                      _buildSubNavItem(
+                        index: SERVICE_CERTIFICATES, // 10
+                        title: 'BARANGAY CERTIFICATES',
+                        icon: Icons.emoji_events,
+                        iconColor: iconColor,
+                        navTextStyle: navTextStyle,
+                      ),
+                      // Certificate of Indigency (Icon: Document)
+                      _buildSubNavItem(
+                        index: SERVICE_INDIGENCY, // 11
+                        title: 'CERTIFICATE OF INDIGENCY',
+                        icon: Icons.description,
+                        iconColor: iconColor,
+                        navTextStyle: navTextStyle,
+                      ),
+                      // Complaints (Icon: Alert)
+                      _buildSubNavItem(
+                        index: SERVICE_COMPLAINTS, // 12
+                        title: 'COMPLAINTS',
+                        icon: Icons.report_problem,
+                        iconColor: iconColor,
+                        navTextStyle: navTextStyle,
+                      ),
+                      // Clearance (Icon: Check Shield)
+                      _buildSubNavItem(
+                        index: SERVICE_CLEARANCE, // 13
+                        title: 'CLEARANCE',
+                        icon: Icons.verified_user,
+                        iconColor: iconColor,
+                        navTextStyle: navTextStyle,
+                      ),
+                      // Blotter Records (Icon: Clipboard)
+                      _buildSubNavItem(
+                        index: SERVICE_BLOTTER, // 14
+                        title: 'BLOTTER RECORDS',
+                        icon: Icons.library_books,
+                        iconColor: iconColor,
+                        navTextStyle: navTextStyle,
+                      ),
+                    ],
+                  ),
                 ),
-                // Certificate of Indigency
+                // -------------------------------------------------------------------
+
+                // Requested Document (Index 4)
                 ListTile(
-                  leading: Icon(Icons.description, color: iconColor),
-                  title: Text('CERTIFICATE OF INDIGENCY', style: navTextStyle),
+                  leading: Icon(Icons.request_page, color: iconColor),
+                  title: Text('REQUESTED DOCUMENT', style: navTextStyle),
                   selected: _selectedIndex == 4,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {
                     setState(() {
                       _selectedIndex = 4;
+                      _isServicesExpanded = false;
                     });
                   },
                 ),
-                // Complaints - NEW NAVIGATION ITEM
+                // House Record (Index 5)
                 ListTile(
-                  leading: Icon(Icons.report_problem, color: iconColor),
-                  title: Text('COMPLAINTS', style: navTextStyle),
+                  leading: Icon(Icons.house, color: iconColor),
+                  title: Text('HOUSE RECORD', style: navTextStyle),
                   selected: _selectedIndex == 5,
                   selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
                   onTap: () {
                     setState(() {
                       _selectedIndex = 5;
-                    });
-                  },
-                ),
-                // Clearance - NEW NAVIGATION ITEM
-                ListTile(
-                  leading: Icon(Icons.verified_user, color: iconColor),
-                  title: Text('CLEARANCE', style: navTextStyle),
-                  selected: _selectedIndex == 6,
-                  selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 6;
-                    });
-                  },
-                ),
-                // Blotter Records - MOVED DOWN
-                ListTile(
-                  leading: Icon(Icons.library_books, color: iconColor),
-                  title: Text('BLOTTER RECORDS', style: navTextStyle),
-                  selected: _selectedIndex == 7,
-                  selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 7;
-                    });
-                  },
-                ),
-                // Requested Document
-                ListTile(
-                  leading: Icon(Icons.request_page, color: iconColor),
-                  title: Text('REQUESTED DOCUMENT', style: navTextStyle),
-                  selected: _selectedIndex == 8,
-                  selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 8;
-                    });
-                  },
-                ),
-                // House Record
-                ListTile(
-                  leading: Icon(Icons.house, color: iconColor),
-                  title: Text('HOUSE RECORD', style: navTextStyle),
-                  selected: _selectedIndex == 9,
-                  selectedTileColor: Colors.deepPurple.shade700.withOpacity(0.3),
-                  onTap: () {
-                    setState(() {
-                      _selectedIndex = 9;
+                      _isServicesExpanded = false;
                     });
                   },
                 ),
@@ -754,19 +827,19 @@ class _AdminHomePageState extends State<AdminHomePage> {
         return 'Brgy Officials and Staff';
       case 2:
         return 'Residents Record';
-      case 3:
+      case SERVICE_CERTIFICATES: // 10
         return 'Barangay Certificates';
-      case 4:
+      case SERVICE_INDIGENCY: // 11
         return 'Certificate of Indigency';
-      case 5:
+      case SERVICE_COMPLAINTS: // 12
         return 'Complaints';
-      case 6:
+      case SERVICE_CLEARANCE: // 13
         return 'Clearance';
-      case 7:
+      case SERVICE_BLOTTER: // 14
         return 'Blotter Records';
-      case 8:
+      case 4:
         return 'Requested Document';
-      case 9:
+      case 5:
         return 'House Record';
       default:
         return 'Admin Dashboard';
