@@ -1,15 +1,12 @@
 name: document_management_system
-description: "A new Flutter project." 
+description: "A new Flutter project."
 
-
-publish_to: 'none' 
-
+publish_to: 'none'
 
 version: 1.0.0+1
 
 environment:
   sdk: ^3.5.4
-
 
 dependencies:
   flutter:
@@ -17,24 +14,34 @@ dependencies:
   cloud_firestore: ^5.6.11
   firebase_core: ^3.15.1
   firebase_auth: ^5.6.2
+  pdf: ^3.10.4
+  printing: ^5.11.1
+  path_provider: ^2.1.1
   intl: ^0.18.1
   cupertino_icons: ^1.0.8
   image_picker: ^1.0.7
   http: ^1.1.0
   file_picker: ^10.2.0
-  # image_cropper: ^5.0.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-
   flutter_lints: ^5.0.0
-
 
 flutter:
   uses-material-design: true
-
+  
   assets:
-  - assets/images/mercedeslogo.png
-
+    - assets/images/mercedeslogo.png
+  
+  fonts:
+    - family: Times New Roman
+      fonts:
+        - asset: fonts/TIMES.TTF
+        - asset: fonts/TIMESBD.TTF
+          weight: 700
+        - asset: fonts/TIMESBI.TTF
+          weight: 700
+          style: italic
+        - asset: fonts/TIMESI.TTF
+          style: italic

@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:document_management_system/widgets/barangay_clearance.dart';
 import 'package:intl/intl.dart';
 
 class BarangayClearanceTablePage extends StatefulWidget {
   const BarangayClearanceTablePage({super.key});
 
   @override
-  State<BarangayClearanceTablePage> createState() => 
+  State<BarangayClearanceTablePage> createState() =>
       _BarangayClearanceTablePageState();
 }
 
-class _BarangayClearanceTablePageState 
+class _BarangayClearanceTablePageState
     extends State<BarangayClearanceTablePage> {
   int _rowsPerPage = 10;
   String _search = '';
@@ -25,8 +26,7 @@ class _BarangayClearanceTablePageState
   ];
 
   // Helper function to get resident by ID number
-  Future<Map<String, dynamic>?> getResidentByIdNumber(
-      String idNumber) async {
+  Future<Map<String, dynamic>?> getResidentByIdNumber(String idNumber) async {
     List<String> puroks = [
       'PUROK - 1',
       'PUROK - 1A',
@@ -115,8 +115,8 @@ class _BarangayClearanceTablePageState
           padding: EdgeInsets.all(24),
           child: Card(
             elevation: 4,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: EdgeInsets.all(24),
               child: Column(
@@ -135,7 +135,8 @@ class _BarangayClearanceTablePageState
                         onPressed: () {
                           // TODO: Implement CSV export
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Export feature coming soon')),
+                            SnackBar(
+                                content: Text('Export feature coming soon')),
                           );
                         },
                         icon: Icon(Icons.file_download, color: Colors.white),
@@ -181,8 +182,7 @@ class _BarangayClearanceTablePageState
                             value: _statusFilter,
                             items: _statusOptions
                                 .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e.toUpperCase())))
+                                    value: e, child: Text(e.toUpperCase())))
                                 .toList(),
                             onChanged: (value) {
                               if (value == null) return;
@@ -202,8 +202,7 @@ class _BarangayClearanceTablePageState
                             contentPadding: EdgeInsets.symmetric(
                                 vertical: 0, horizontal: 12),
                           ),
-                          onChanged: (value) =>
-                              setState(() => _search = value),
+                          onChanged: (value) => setState(() => _search = value),
                         ),
                       ),
                     ],
@@ -264,8 +263,7 @@ class _BarangayClearanceTablePageState
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.inbox,
-                                    size: 64, color: Colors.grey),
+                                Icon(Icons.inbox, size: 64, color: Colors.grey),
                                 SizedBox(height: 16),
                                 Text(
                                   'No clearance requests found',
@@ -299,7 +297,8 @@ class _BarangayClearanceTablePageState
 
                             final allData = dataSnapshot.data ?? [];
                             final filtered = _filterData(allData);
-                            final visible = filtered.take(_rowsPerPage).toList();
+                            final visible =
+                                filtered.take(_rowsPerPage).toList();
 
                             if (filtered.isEmpty) {
                               return Center(
@@ -344,8 +343,8 @@ class _BarangayClearanceTablePageState
                                         child: SingleChildScrollView(
                                           scrollDirection: Axis.horizontal,
                                           child: ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                                minWidth: 1200),
+                                            constraints:
+                                                BoxConstraints(minWidth: 1200),
                                             child: DataTable(
                                               columnSpacing: 20,
                                               headingRowColor:
@@ -422,7 +421,8 @@ class _BarangayClearanceTablePageState
                                                   ),
                                                   cells: [
                                                     DataCell(Text(
-                                                      data['requestId'] ?? 'N/A',
+                                                      data['requestId'] ??
+                                                          'N/A',
                                                       style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.w600,
@@ -439,11 +439,13 @@ class _BarangayClearanceTablePageState
                                                             'Unknown',
                                                         style: TextStyle(
                                                             fontWeight:
-                                                                FontWeight.w600),
+                                                                FontWeight
+                                                                    .w600),
                                                       ),
                                                     ),
                                                     DataCell(Text(
-                                                        data['purok'] ?? 'N/A')),
+                                                        data['purok'] ??
+                                                            'N/A')),
                                                     DataCell(Text(
                                                         data['contact'] ??
                                                             'N/A')),
@@ -476,7 +478,8 @@ class _BarangayClearanceTablePageState
                                                           horizontal: 12,
                                                           vertical: 6,
                                                         ),
-                                                        decoration: BoxDecoration(
+                                                        decoration:
+                                                            BoxDecoration(
                                                           color: getStatusColor(
                                                                   data['status'] ??
                                                                       '')
@@ -512,13 +515,15 @@ class _BarangayClearanceTablePageState
                                                         children: [
                                                           IconButton(
                                                             icon: Icon(
-                                                                Icons.visibility,
+                                                                Icons
+                                                                    .visibility,
                                                                 color: Colors
                                                                     .blue),
                                                             tooltip: 'View',
                                                             onPressed: () {
-                                                              _showRequestDetails(
-                                                                  context, data);
+                                                              showBarangayClearanceCertificate(
+                                                                  context,
+                                                                  data);
                                                             },
                                                           ),
                                                           if (data['status'] ==
@@ -680,7 +685,10 @@ class _BarangayClearanceTablePageState
         'idNumber': idNumber,
         'fullName': buildFullName(resident),
         'purok': resident?['purok'] ?? 'N/A',
-        'contact': resident?['contact'] ?? resident?['contactNumber'] ?? resident?['phone'] ?? 'N/A',
+        'contact': resident?['contact'] ??
+            resident?['contactNumber'] ??
+            resident?['phone'] ??
+            'N/A',
         'purpose': data['purpose'] ?? 'N/A',
         'dateSubmitted': formatDate(data['timestamp']),
         'status': data['status'] ?? 'pending',
@@ -710,10 +718,8 @@ class _BarangayClearanceTablePageState
             item['idNumber'].toString().toLowerCase().contains(searchLower);
         final nameMatch =
             item['fullName'].toString().toLowerCase().contains(searchLower);
-        final requestIdMatch = item['requestId']
-            .toString()
-            .toLowerCase()
-            .contains(searchLower);
+        final requestIdMatch =
+            item['requestId'].toString().toLowerCase().contains(searchLower);
 
         return idMatch || nameMatch || requestIdMatch;
       }
@@ -772,7 +778,8 @@ class _BarangayClearanceTablePageState
               Divider(),
               _buildDetailRow('Purpose', data['purpose']),
               _buildDetailRow('Date Submitted', data['dateSubmitted']),
-              _buildDetailRow('Status', data['status'].toString().toUpperCase()),
+              _buildDetailRow(
+                  'Status', data['status'].toString().toUpperCase()),
             ],
           ),
         ),
