@@ -402,8 +402,12 @@ class _AdminHomePageState extends State<AdminHomePage> {
       );
     }
     if (_selectedIndex == 7) {
-      // FIXED: Return the blotter content instead of the full page widget
-      return _buildBlotterContent(context);
+      // Blotter Section
+      return Container(
+        color: Color(0xFFEAE6FA),
+        width: double.infinity,
+        child: BarangayBlotterTablePage(),
+      );
     }
     // Placeholder for other navs
     return Center(
