@@ -5,27 +5,29 @@ class BarangayIndigencyTablePage extends StatefulWidget {
   const BarangayIndigencyTablePage({super.key});
 
   @override
-  State<BarangayIndigencyTablePage> createState() => _BarangayIndigencyTablePageState();
+  State<BarangayIndigencyTablePage> createState() =>
+      _BarangayIndigencyTablePageState();
 }
 
-class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage> {
+class _BarangayIndigencyTablePageState
+    extends State<BarangayIndigencyTablePage> {
   int _rowsPerPage = 10;
   String _search = '';
   String _statusFilter = 'all';
 
   final List<String> _puroks = [
-    'PUROK - 1',
-    'PUROK - 1A',
-    'PUROK - 2',
-    'PUROK - 3',
-    'PUROK - 4',
-    'PUROK - 4A',
-    'PUROK - 5',
-    'PUROK - 5A',
-    'PUROK - 6',
-    'PUROK - 7',
-    'PUROK - 7A',
-    'PUROK - 8',
+    '1',
+    '1A',
+    '2',
+    '3',
+    '4',
+    '4A',
+    '5',
+    '5A',
+    '6',
+    '7',
+    '7A',
+    '8',
   ];
 
   Future<Map<String, dynamic>?> getResidentByIdNumber(String idNumber) async {
@@ -55,7 +57,7 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
           .collection('certificate_of_indigency')
           .doc(requestId)
           .update({'status': newStatus});
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Status updated to $newStatus')),
@@ -70,7 +72,8 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
     }
   }
 
-  void _showDetailsDialog(Map<String, dynamic> request, Map<String, dynamic>? resident) {
+  void _showDetailsDialog(
+      Map<String, dynamic> request, Map<String, dynamic>? resident) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -84,23 +87,30 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
               _buildDetailRow('ID Number', request['idNumber'] ?? 'N/A'),
               _buildDetailRow('Purpose', request['purpose'] ?? 'N/A'),
               _buildDetailRow('Status', request['status'] ?? 'N/A'),
-              _buildDetailRow('Date Submitted', 
-                request['timestamp'] != null 
-                  ? (request['timestamp'] as Timestamp).toDate().toString().split('.')[0]
-                  : 'N/A'),
+              _buildDetailRow(
+                  'Date Submitted',
+                  request['timestamp'] != null
+                      ? (request['timestamp'] as Timestamp)
+                          .toDate()
+                          .toString()
+                          .split('.')[0]
+                      : 'N/A'),
               Divider(height: 24),
-              Text('Resident Information', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              Text('Resident Information',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
               SizedBox(height: 8),
               if (resident != null) ...[
-                _buildDetailRow('Full Name', 
-                  '${resident['firstname'] ?? ''} ${resident['middlename'] ?? ''} ${resident['lastname'] ?? ''}'),
+                _buildDetailRow('Full Name',
+                    '${resident['firstname'] ?? ''} ${resident['middlename'] ?? ''} ${resident['lastname'] ?? ''}'),
                 _buildDetailRow('Age', resident['age']?.toString() ?? 'N/A'),
                 _buildDetailRow('Gender', resident['gender'] ?? 'N/A'),
-                _buildDetailRow('Civil Status', resident['civilStatus'] ?? 'N/A'),
+                _buildDetailRow(
+                    'Civil Status', resident['civilStatus'] ?? 'N/A'),
                 _buildDetailRow('Purok', resident['purok'] ?? 'N/A'),
                 _buildDetailRow('Address', resident['address'] ?? 'N/A'),
                 _buildDetailRow('Contact', resident['contact'] ?? 'N/A'),
-                _buildDetailRow('Voter Status', resident['voterStatus'] ?? 'N/A'),
+                _buildDetailRow(
+                    'Voter Status', resident['voterStatus'] ?? 'N/A'),
               ] else
                 Text('Resident not found', style: TextStyle(color: Colors.red)),
             ],
@@ -124,7 +134,8 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
         children: [
           SizedBox(
             width: 120,
-            child: Text('$label:', style: TextStyle(fontWeight: FontWeight.w600)),
+            child:
+                Text('$label:', style: TextStyle(fontWeight: FontWeight.w600)),
           ),
           Expanded(child: Text(value)),
         ],
@@ -140,7 +151,8 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
         padding: EdgeInsets.all(24),
         child: Card(
           elevation: 4,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           child: Padding(
             padding: EdgeInsets.all(24),
             child: Column(
@@ -149,12 +161,15 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Certificate of Indigency', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text('Certificate of Indigency',
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold)),
                     ElevatedButton.icon(
                       onPressed: () {
                         // TODO: Implement CSV export
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Export CSV feature coming soon')),
+                          SnackBar(
+                              content: Text('Export CSV feature coming soon')),
                         );
                       },
                       icon: Icon(Icons.file_download, color: Colors.white),
@@ -162,8 +177,10 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8)),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       ),
                     ),
                   ],
@@ -178,7 +195,10 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                         SizedBox(width: 8),
                         DropdownButton<int>(
                           value: _rowsPerPage,
-                          items: [10, 25, 50].map((e) => DropdownMenuItem(value: e, child: Text('$e'))).toList(),
+                          items: [10, 25, 50]
+                              .map((e) =>
+                                  DropdownMenuItem(value: e, child: Text('$e')))
+                              .toList(),
                           onChanged: (value) {
                             if (value == null) return;
                             setState(() => _rowsPerPage = value);
@@ -193,9 +213,12 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                           value: _statusFilter,
                           items: [
                             DropdownMenuItem(value: 'all', child: Text('All')),
-                            DropdownMenuItem(value: 'pending', child: Text('Pending')),
-                            DropdownMenuItem(value: 'approved', child: Text('Approved')),
-                            DropdownMenuItem(value: 'rejected', child: Text('Rejected')),
+                            DropdownMenuItem(
+                                value: 'pending', child: Text('Pending')),
+                            DropdownMenuItem(
+                                value: 'approved', child: Text('Approved')),
+                            DropdownMenuItem(
+                                value: 'rejected', child: Text('Rejected')),
                           ],
                           onChanged: (value) {
                             if (value == null) return;
@@ -210,8 +233,10 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                         decoration: InputDecoration(
                           hintText: 'Search',
                           prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-                          contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          contentPadding:
+                              EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                         ),
                         onChanged: (value) => setState(() => _search = value),
                       ),
@@ -243,9 +268,11 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                       return FutureBuilder<List<Map<String, dynamic>>>(
                         future: Future.wait(
                           requests.map((doc) async {
-                            final requestData = doc.data() as Map<String, dynamic>;
+                            final requestData =
+                                doc.data() as Map<String, dynamic>;
                             requestData['docId'] = doc.id;
-                            final resident = await getResidentByIdNumber(requestData['idNumber'] ?? '');
+                            final resident = await getResidentByIdNumber(
+                                requestData['idNumber'] ?? '');
                             return {
                               'request': requestData,
                               'resident': resident,
@@ -253,12 +280,14 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                           }).toList(),
                         ),
                         builder: (context, dataSnapshot) {
-                          if (dataSnapshot.connectionState == ConnectionState.waiting) {
+                          if (dataSnapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return Center(child: CircularProgressIndicator());
                           }
 
                           if (!dataSnapshot.hasData) {
-                            return Center(child: Text('Loading resident data...'));
+                            return Center(
+                                child: Text('Loading resident data...'));
                           }
 
                           var combined = dataSnapshot.data!;
@@ -266,7 +295,10 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                           // Apply status filter
                           if (_statusFilter != 'all') {
                             combined = combined.where((item) {
-                              final status = item['request']['status']?.toString().toLowerCase() ?? '';
+                              final status = item['request']['status']
+                                      ?.toString()
+                                      .toLowerCase() ??
+                                  '';
                               return status == _statusFilter;
                             }).toList();
                           }
@@ -276,18 +308,40 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                             combined = combined.where((item) {
                               final request = item['request'];
                               final resident = item['resident'];
-                              
-                              final idMatch = (request['idNumber'] ?? '').toString().toLowerCase().contains(_search.toLowerCase());
-                              final requestIdMatch = (request['requestId'] ?? '').toString().toLowerCase().contains(_search.toLowerCase());
-                              final purposeMatch = (request['purpose'] ?? '').toString().toLowerCase().contains(_search.toLowerCase());
-                              
+
+                              final idMatch = (request['idNumber'] ?? '')
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains(_search.toLowerCase());
+                              final requestIdMatch =
+                                  (request['requestId'] ?? '')
+                                      .toString()
+                                      .toLowerCase()
+                                      .contains(_search.toLowerCase());
+                              final purposeMatch = (request['purpose'] ?? '')
+                                  .toString()
+                                  .toLowerCase()
+                                  .contains(_search.toLowerCase());
+
                               if (resident != null) {
-                                final nameMatch = (resident['firstname'] ?? '').toString().toLowerCase().contains(_search.toLowerCase()) ||
-                                    (resident['middlename'] ?? '').toString().toLowerCase().contains(_search.toLowerCase()) ||
-                                    (resident['lastname'] ?? '').toString().toLowerCase().contains(_search.toLowerCase());
-                                return idMatch || requestIdMatch || purposeMatch || nameMatch;
+                                final nameMatch = (resident['firstname'] ?? '')
+                                        .toString()
+                                        .toLowerCase()
+                                        .contains(_search.toLowerCase()) ||
+                                    (resident['middlename'] ?? '')
+                                        .toString()
+                                        .toLowerCase()
+                                        .contains(_search.toLowerCase()) ||
+                                    (resident['lastname'] ?? '')
+                                        .toString()
+                                        .toLowerCase()
+                                        .contains(_search.toLowerCase());
+                                return idMatch ||
+                                    requestIdMatch ||
+                                    purposeMatch ||
+                                    nameMatch;
                               }
-                              
+
                               return idMatch || requestIdMatch || purposeMatch;
                             }).toList();
                           }
@@ -303,109 +357,215 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                                       decoration: BoxDecoration(
                                         color: Colors.white,
                                         borderRadius: BorderRadius.circular(12),
-                                        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 2)],
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: Colors.black12,
+                                              blurRadius: 2)
+                                        ],
                                       ),
                                       child: SingleChildScrollView(
                                         scrollDirection: Axis.horizontal,
                                         child: ConstrainedBox(
-                                          constraints: BoxConstraints(minWidth: 1200),
+                                          constraints:
+                                              BoxConstraints(minWidth: 1200),
                                           child: DataTable(
-                                          columnSpacing: 16,
-                                          headingRowColor: MaterialStateProperty.all(Color(0xFFF6F6FA)),
-                                          dividerThickness: 0.5,
-                                          columns: const [
-                                            DataColumn(label: Text('Request ID', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('ID Number', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('Full Name', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('Purok', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('Contact', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('Purpose', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('Date Submitted', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('Status', style: TextStyle(fontWeight: FontWeight.bold))),
-                                            DataColumn(label: Text('Actions', style: TextStyle(fontWeight: FontWeight.bold))),
-                                          ],
-                                          rows: List.generate(visible.length, (i) {
-                                            final item = visible[i];
-                                            final request = item['request'];
-                                            final resident = item['resident'];
-                                            final isEven = i % 2 == 0;
-
-                                            return DataRow(
-                                              color: MaterialStateProperty.all(isEven ? Color(0xFFF8F8FA) : Colors.white),
-                                              cells: [
-                                                DataCell(Text(request['requestId'] ?? 'N/A')),
-                                                DataCell(Text(request['idNumber'] ?? 'N/A')),
-                                                DataCell(
-                                                  Text(
-                                                    resident != null
-                                                        ? '${resident['firstname'] ?? ''} ${resident['middlename'] ?? ''} ${resident['lastname'] ?? ''}'
-                                                        : 'Not Found',
-                                                    style: TextStyle(
-                                                      fontWeight: FontWeight.w600,
-                                                      color: resident != null ? Colors.deepPurple.shade900 : Colors.red,
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(Text(resident?['purok'] ?? 'N/A')),
-                                                DataCell(Text(resident?['contact'] ?? 'N/A')),
-                                                DataCell(
-                                                  Container(
-                                                    constraints: BoxConstraints(maxWidth: 150),
-                                                    child: Text(
-                                                      request['purpose'] ?? 'N/A',
-                                                      overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  Text(
-                                                    request['timestamp'] != null
-                                                        ? (request['timestamp'] as Timestamp).toDate().toString().split(' ')[0]
-                                                        : 'N/A',
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  Container(
-                                                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                                                    decoration: BoxDecoration(
-                                                      color: _getStatusColor(request['status']),
-                                                      borderRadius: BorderRadius.circular(12),
-                                                    ),
-                                                    child: Text(
-                                                      (request['status'] ?? 'pending').toString().toUpperCase(),
+                                            columnSpacing: 16,
+                                            headingRowColor:
+                                                MaterialStateProperty.all(
+                                                    Color(0xFFF6F6FA)),
+                                            dividerThickness: 0.5,
+                                            columns: const [
+                                              DataColumn(
+                                                  label: Text('Request ID',
                                                       style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontWeight: FontWeight.bold,
-                                                        fontSize: 12,
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('ID Number',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('Full Name',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('Purok',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('Contact',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('Purpose',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('Date Submitted',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('Status',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                              DataColumn(
+                                                  label: Text('Actions',
+                                                      style: TextStyle(
+                                                          fontWeight: FontWeight
+                                                              .bold))),
+                                            ],
+                                            rows: List.generate(visible.length,
+                                                (i) {
+                                              final item = visible[i];
+                                              final request = item['request'];
+                                              final resident = item['resident'];
+                                              final isEven = i % 2 == 0;
+
+                                              return DataRow(
+                                                color:
+                                                    MaterialStateProperty.all(
+                                                        isEven
+                                                            ? Color(0xFFF8F8FA)
+                                                            : Colors.white),
+                                                cells: [
+                                                  DataCell(Text(
+                                                      request['requestId'] ??
+                                                          'N/A')),
+                                                  DataCell(Text(
+                                                      request['idNumber'] ??
+                                                          'N/A')),
+                                                  DataCell(
+                                                    Text(
+                                                      resident != null
+                                                          ? '${resident['firstname'] ?? ''} ${resident['middlename'] ?? ''} ${resident['lastname'] ?? ''}'
+                                                          : 'Not Found',
+                                                      style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: resident != null
+                                                            ? Colors.deepPurple
+                                                                .shade900
+                                                            : Colors.red,
                                                       ),
                                                     ),
                                                   ),
-                                                ),
-                                                DataCell(
-                                                  Row(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      IconButton(
-                                                        icon: Icon(Icons.visibility, color: Colors.blue),
-                                                        tooltip: 'View Details',
-                                                        onPressed: () => _showDetailsDialog(request, resident),
+                                                  DataCell(Text(
+                                                      resident?['purok'] ??
+                                                          'N/A')),
+                                                  DataCell(Text(
+                                                      resident?['contact'] ??
+                                                          'N/A')),
+                                                  DataCell(
+                                                    Container(
+                                                      constraints:
+                                                          BoxConstraints(
+                                                              maxWidth: 150),
+                                                      child: Text(
+                                                        request['purpose'] ??
+                                                            'N/A',
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
-                                                      PopupMenuButton<String>(
-                                                        icon: Icon(Icons.more_vert),
-                                                        tooltip: 'Update Status',
-                                                        onSelected: (status) => _updateStatus(request['docId'], status),
-                                                        itemBuilder: (context) => [
-                                                          PopupMenuItem(value: 'pending', child: Text('Pending')),
-                                                          PopupMenuItem(value: 'approved', child: Text('Approved')),
-                                                          PopupMenuItem(value: 'rejected', child: Text('Rejected')),
-                                                        ],
-                                                      ),
-                                                    ],
+                                                    ),
                                                   ),
-                                                ),
-                                              ],
-                                            );
-                                          }                                            ),
+                                                  DataCell(
+                                                    Text(
+                                                      request['timestamp'] !=
+                                                              null
+                                                          ? (request['timestamp']
+                                                                  as Timestamp)
+                                                              .toDate()
+                                                              .toString()
+                                                              .split(' ')[0]
+                                                          : 'N/A',
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 12,
+                                                              vertical: 4),
+                                                      decoration: BoxDecoration(
+                                                        color: _getStatusColor(
+                                                            request['status']),
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(12),
+                                                      ),
+                                                      child: Text(
+                                                        (request['status'] ??
+                                                                'pending')
+                                                            .toString()
+                                                            .toUpperCase(),
+                                                        style: TextStyle(
+                                                          color: Colors.white,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 12,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  DataCell(
+                                                    Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        IconButton(
+                                                          icon: Icon(
+                                                              Icons.visibility,
+                                                              color:
+                                                                  Colors.blue),
+                                                          tooltip:
+                                                              'View Details',
+                                                          onPressed: () =>
+                                                              _showDetailsDialog(
+                                                                  request,
+                                                                  resident),
+                                                        ),
+                                                        PopupMenuButton<String>(
+                                                          icon: Icon(
+                                                              Icons.more_vert),
+                                                          tooltip:
+                                                              'Update Status',
+                                                          onSelected: (status) =>
+                                                              _updateStatus(
+                                                                  request[
+                                                                      'docId'],
+                                                                  status),
+                                                          itemBuilder:
+                                                              (context) => [
+                                                            PopupMenuItem(
+                                                                value:
+                                                                    'pending',
+                                                                child: Text(
+                                                                    'Pending')),
+                                                            PopupMenuItem(
+                                                                value:
+                                                                    'approved',
+                                                                child: Text(
+                                                                    'Approved')),
+                                                            PopupMenuItem(
+                                                                value:
+                                                                    'rejected',
+                                                                child: Text(
+                                                                    'Rejected')),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            }),
                                           ),
                                         ),
                                       ),
@@ -415,34 +575,47 @@ class _BarangayIndigencyTablePageState extends State<BarangayIndigencyTablePage>
                               ),
                               SizedBox(height: 16),
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Showing ${combined.isEmpty ? 0 : 1} to ${visible.length} of ${combined.length} entries'),
+                                  Text(
+                                      'Showing ${combined.isEmpty ? 0 : 1} to ${visible.length} of ${combined.length} entries'),
                                   Row(
                                     children: [
                                       OutlinedButton(
                                         onPressed: null,
                                         style: OutlinedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                          side: BorderSide(color: Colors.grey.shade300),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          side: BorderSide(
+                                              color: Colors.grey.shade300),
                                         ),
                                         child: Text('Previous'),
                                       ),
                                       SizedBox(width: 8),
                                       Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 6),
                                         decoration: BoxDecoration(
                                           color: Colors.blue,
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius:
+                                              BorderRadius.circular(20),
                                         ),
-                                        child: Text('1', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                        child: Text('1',
+                                            style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold)),
                                       ),
                                       SizedBox(width: 8),
                                       OutlinedButton(
                                         onPressed: null,
                                         style: OutlinedButton.styleFrom(
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                                          side: BorderSide(color: Colors.grey.shade300),
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(20)),
+                                          side: BorderSide(
+                                              color: Colors.grey.shade300),
                                         ),
                                         child: Text('Next'),
                                       ),

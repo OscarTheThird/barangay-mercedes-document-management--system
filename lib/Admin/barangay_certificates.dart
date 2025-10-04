@@ -24,21 +24,20 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
   ];
 
   // Helper function to get resident by ID number
-  Future<Map<String, dynamic>?> getResidentByIdNumber(
-      String idNumber) async {
+  Future<Map<String, dynamic>?> getResidentByIdNumber(String idNumber) async {
     List<String> puroks = [
-      'PUROK - 1',
-      'PUROK - 1A',
-      'PUROK - 2',
-      'PUROK - 3',
-      'PUROK - 4',
-      'PUROK - 4A',
-      'PUROK - 5',
-      'PUROK - 5A',
-      'PUROK - 6',
-      'PUROK - 7',
-      'PUROK - 7A',
-      'PUROK - 8'
+      '1',
+      '1A',
+      '2',
+      '3',
+      '4',
+      '4A',
+      '5',
+      '5A',
+      '6',
+      '7',
+      '7A',
+      '8',
     ];
 
     for (String purok in puroks) {
@@ -114,8 +113,8 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
           padding: EdgeInsets.all(24),
           child: Card(
             elevation: 4,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             child: Padding(
               padding: EdgeInsets.all(24),
               child: Column(
@@ -180,8 +179,7 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
                             value: _statusFilter,
                             items: _statusOptions
                                 .map((e) => DropdownMenuItem(
-                                    value: e,
-                                    child: Text(e.toUpperCase())))
+                                    value: e, child: Text(e.toUpperCase())))
                                 .toList(),
                             onChanged: (value) {
                               if (value == null) return;
@@ -201,8 +199,7 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
                             contentPadding: EdgeInsets.symmetric(
                                 vertical: 0, horizontal: 12),
                           ),
-                          onChanged: (value) =>
-                              setState(() => _search = value),
+                          onChanged: (value) => setState(() => _search = value),
                         ),
                       ),
                     ],
@@ -296,7 +293,8 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
 
                             final allData = dataSnapshot.data ?? [];
                             final filtered = _filterData(allData);
-                            final visible = filtered.take(_rowsPerPage).toList();
+                            final visible =
+                                filtered.take(_rowsPerPage).toList();
 
                             if (filtered.isEmpty) {
                               return Center(
@@ -341,8 +339,8 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
                                         child: SingleChildScrollView(
                                           scrollDirection: Axis.horizontal,
                                           child: ConstrainedBox(
-                                            constraints: BoxConstraints(
-                                                minWidth: 1200),
+                                            constraints:
+                                                BoxConstraints(minWidth: 1200),
                                             child: DataTable(
                                               columnSpacing: 20,
                                               headingRowColor:
@@ -419,7 +417,8 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
                                                   ),
                                                   cells: [
                                                     DataCell(Text(
-                                                      data['requestId'] ?? 'N/A',
+                                                      data['requestId'] ??
+                                                          'N/A',
                                                       style: TextStyle(
                                                           fontWeight:
                                                               FontWeight.w600,
@@ -436,11 +435,13 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
                                                             'Unknown',
                                                         style: TextStyle(
                                                             fontWeight:
-                                                                FontWeight.w600),
+                                                                FontWeight
+                                                                    .w600),
                                                       ),
                                                     ),
                                                     DataCell(Text(
-                                                        data['purok'] ?? 'N/A')),
+                                                        data['purok'] ??
+                                                            'N/A')),
                                                     DataCell(Text(
                                                         data['contact'] ??
                                                             'N/A')),
@@ -473,7 +474,8 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
                                                           horizontal: 12,
                                                           vertical: 6,
                                                         ),
-                                                        decoration: BoxDecoration(
+                                                        decoration:
+                                                            BoxDecoration(
                                                           color: getStatusColor(
                                                                   data['status'] ??
                                                                       '')
@@ -509,13 +511,15 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
                                                         children: [
                                                           IconButton(
                                                             icon: Icon(
-                                                                Icons.visibility,
+                                                                Icons
+                                                                    .visibility,
                                                                 color: Colors
                                                                     .blue),
                                                             tooltip: 'View',
                                                             onPressed: () {
                                                               _showRequestDetails(
-                                                                  context, data);
+                                                                  context,
+                                                                  data);
                                                             },
                                                           ),
                                                           if (data['status'] ==
@@ -749,7 +753,10 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
         'idNumber': idNumber,
         'fullName': buildFullName(resident),
         'purok': resident?['purok'] ?? 'N/A',
-        'contact': resident?['contact'] ?? resident?['contactNumber'] ?? resident?['phone'] ?? 'N/A',
+        'contact': resident?['contact'] ??
+            resident?['contactNumber'] ??
+            resident?['phone'] ??
+            'N/A',
         'purpose': data['purpose'] ?? 'N/A',
         'dateSubmitted': formatDate(data['timestamp']),
         'status': data['status'] ?? 'pending',
@@ -779,10 +786,8 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
             item['idNumber'].toString().toLowerCase().contains(searchLower);
         final nameMatch =
             item['fullName'].toString().toLowerCase().contains(searchLower);
-        final requestIdMatch = item['requestId']
-            .toString()
-            .toLowerCase()
-            .contains(searchLower);
+        final requestIdMatch =
+            item['requestId'].toString().toLowerCase().contains(searchLower);
 
         return idMatch || nameMatch || requestIdMatch;
       }
@@ -841,7 +846,8 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
               Divider(),
               _buildDetailRow('Purpose', data['purpose']),
               _buildDetailRow('Date Submitted', data['dateSubmitted']),
-              _buildDetailRow('Status', data['status'].toString().toUpperCase()),
+              _buildDetailRow(
+                  'Status', data['status'].toString().toUpperCase()),
             ],
           ),
         ),
