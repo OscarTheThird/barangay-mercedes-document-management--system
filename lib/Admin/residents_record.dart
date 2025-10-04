@@ -79,125 +79,186 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
     final isMobile = screenWidth < 768;
     final isTablet = screenWidth >= 768 && screenWidth < 1024;
 
-    return Center(
-      child: Container(
-        constraints: BoxConstraints(maxWidth: 1500),
-        padding: EdgeInsets.all(isMobile ? 16 : 32),
-        child: Card(
-          elevation: 4,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Padding(
-            padding: EdgeInsets.all(isMobile ? 16 : 24),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header Section
-                  if (isMobile) ...[
-                    // Mobile Header
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Residents Record',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 16),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () => _showResidentForm(),
-                                icon: Icon(Icons.person_add,
-                                    color: Colors.white, size: 18),
-                                label: Text('+ Resident',
-                                    style: TextStyle(fontSize: 14)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.green,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                ),
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Expanded(
-                              child: ElevatedButton.icon(
-                                onPressed: () {},
-                                icon: Icon(Icons.file_download,
-                                    color: Colors.white, size: 18),
-                                label: Text('Export',
-                                    style: TextStyle(fontSize: 14)),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8)),
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ] else ...[
-                    // Desktop Header
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Residents Record',
-                            style: TextStyle(
-                                fontSize: 22, fontWeight: FontWeight.bold)),
-                        Row(
-                          children: [
-                            ElevatedButton.icon(
+    return Container(
+      constraints: BoxConstraints(maxWidth: double.infinity),
+      padding: EdgeInsets.all(24),
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header Section
+                if (isMobile) ...[
+                  // Mobile Header
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Residents Record',
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
                               onPressed: () => _showResidentForm(),
-                              icon: Icon(Icons.person_add, color: Colors.white),
-                              label: Text('+ Resident'),
+                              icon: Icon(Icons.person_add,
+                                  color: Colors.white, size: 18),
+                              label: Text('+ Resident',
+                                  style: TextStyle(fontSize: 14)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.green,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8)),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
+                                    horizontal: 12, vertical: 10),
                               ),
                             ),
-                            SizedBox(width: 12),
-                            ElevatedButton.icon(
+                          ),
+                          SizedBox(width: 8),
+                          Expanded(
+                            child: ElevatedButton.icon(
                               onPressed: () {},
                               icon: Icon(Icons.file_download,
-                                  color: Colors.white),
-                              label: Text('Export CSV'),
+                                  color: Colors.white, size: 18),
+                              label: Text('Export',
+                                  style: TextStyle(fontSize: 14)),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.red,
                                 foregroundColor: Colors.white,
                                 shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(8)),
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 16, vertical: 12),
+                                    horizontal: 12, vertical: 10),
                               ),
                             ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  // Desktop Header
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Residents Record',
+                          style: TextStyle(
+                              fontSize: 22, fontWeight: FontWeight.bold)),
+                      Row(
+                        children: [
+                          ElevatedButton.icon(
+                            onPressed: () => _showResidentForm(),
+                            icon: Icon(Icons.person_add, color: Colors.white),
+                            label: Text('+ Resident'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                            ),
+                          ),
+                          SizedBox(width: 12),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            icon:
+                                Icon(Icons.file_download, color: Colors.white),
+                            label: Text('Export CSV'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)),
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 16, vertical: 12),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+                SizedBox(height: 16),
+                // Search and Filter Section
+                if (isMobile) ...[
+                  // Mobile Search and Filter
+                  Column(
+                    children: [
+                      TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search residents...',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8)),
+                          contentPadding:
+                              EdgeInsets.symmetric(vertical: 0, horizontal: 12),
                         ),
-                      ],
-                    ),
-                  ],
-                  SizedBox(height: 16),
-                  // Search and Filter Section
-                  if (isMobile) ...[
-                    // Mobile Search and Filter
-                    Column(
-                      children: [
-                        TextField(
+                        onChanged: (value) {
+                          setState(() {
+                            _search = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Text('Show: ', style: TextStyle(fontSize: 14)),
+                          DropdownButton<int>(
+                            value: _rowsPerPage,
+                            items: [10, 25, 50]
+                                .map((e) => DropdownMenuItem(
+                                    value: e, child: Text('$e')))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _rowsPerPage = value!;
+                              });
+                            },
+                          ),
+                          Text(' entries', style: TextStyle(fontSize: 14)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  // Desktop Search and Filter
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Text('Show'),
+                          SizedBox(width: 8),
+                          DropdownButton<int>(
+                            value: _rowsPerPage,
+                            items: [10, 25, 50]
+                                .map((e) => DropdownMenuItem(
+                                    value: e, child: Text('$e')))
+                                .toList(),
+                            onChanged: (value) {
+                              setState(() {
+                                _rowsPerPage = value!;
+                              });
+                            },
+                          ),
+                          SizedBox(width: 8),
+                          Text('entries'),
+                        ],
+                      ),
+                      Container(
+                        width: 220,
+                        child: TextField(
                           decoration: InputDecoration(
-                            hintText: 'Search residents...',
+                            hintText: 'Search',
                             prefixIcon: Icon(Icons.search),
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8)),
@@ -210,156 +271,353 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                             });
                           },
                         ),
-                        SizedBox(height: 12),
-                        Row(
-                          children: [
-                            Text('Show: ', style: TextStyle(fontSize: 14)),
-                            DropdownButton<int>(
-                              value: _rowsPerPage,
-                              items: [10, 25, 50]
-                                  .map((e) => DropdownMenuItem(
-                                      value: e, child: Text('$e')))
-                                  .toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _rowsPerPage = value!;
-                                });
-                              },
-                            ),
-                            Text(' entries', style: TextStyle(fontSize: 14)),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ] else ...[
-                    // Desktop Search and Filter
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      ),
+                    ],
+                  ),
+                ],
+                SizedBox(height: 16),
+                StreamBuilder<List<Map<String, dynamic>>>(
+                  stream: residentsStream(),
+                  builder: (context, snapshot) {
+                    print(
+                        'StreamBuilder called, connectionState: \\${snapshot.connectionState}');
+                    if (snapshot.hasError) {
+                      print('StreamBuilder error: \\${snapshot.error}');
+                      return Center(child: Text('Error: \\${snapshot.error}'));
+                    }
+                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return Center(child: Text('No residents found.'));
+                    }
+                    final filteredResidents = snapshot.data!;
+                    // Filter by ID number or any part of the name
+                    final filteredResidentsFiltered =
+                        filteredResidents.where((data) {
+                      final idMatch = (data['idNumber'] ?? '')
+                          .toString()
+                          .toLowerCase()
+                          .contains(_search.toLowerCase());
+                      final nameMatch = (data['firstname'] ?? '')
+                              .toString()
+                              .toLowerCase()
+                              .contains(_search.toLowerCase()) ||
+                          (data['middlename'] ?? '')
+                              .toString()
+                              .toLowerCase()
+                              .contains(_search.toLowerCase()) ||
+                          (data['lastname'] ?? '')
+                              .toString()
+                              .toLowerCase()
+                              .contains(_search.toLowerCase());
+                      return _search.isEmpty || idMatch || nameMatch;
+                    }).toList();
+                    return Column(
                       children: [
-                        Row(
-                          children: [
-                            Text('Show'),
-                            SizedBox(width: 8),
-                            DropdownButton<int>(
-                              value: _rowsPerPage,
-                              items: [10, 25, 50]
-                                  .map((e) => DropdownMenuItem(
-                                      value: e, child: Text('$e')))
-                                  .toList(),
-                              onChanged: (value) {
-                                setState(() {
-                                  _rowsPerPage = value!;
-                                });
-                              },
-                            ),
-                            SizedBox(width: 8),
-                            Text('entries'),
-                          ],
-                        ),
-                        Container(
-                          width: 220,
-                          child: TextField(
-                            decoration: InputDecoration(
-                              hintText: 'Search',
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8)),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 12),
-                            ),
-                            onChanged: (value) {
-                              setState(() {
-                                _search = value;
-                              });
+                        if (isMobile) ...[
+                          // Mobile Card View
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: filteredResidentsFiltered
+                                .take(_rowsPerPage)
+                                .length,
+                            itemBuilder: (context, i) {
+                              final data = filteredResidentsFiltered[i];
+                              return Card(
+                                margin: EdgeInsets.only(bottom: 12),
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundImage:
+                                                data['profileImage'] != null &&
+                                                        data['profileImage'] !=
+                                                            ''
+                                                    ? NetworkImage(
+                                                        data['profileImage'])
+                                                    : null,
+                                            child: data['profileImage'] ==
+                                                        null ||
+                                                    data['profileImage'] == ''
+                                                ? Icon(Icons.person)
+                                                : null,
+                                            radius: 25,
+                                          ),
+                                          SizedBox(width: 12),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  (data['firstname'] ?? '') +
+                                                      (data['middlename'] !=
+                                                                  null &&
+                                                              data['middlename'] !=
+                                                                  ''
+                                                          ? ' ' +
+                                                              data['middlename']
+                                                          : '') +
+                                                      (data['lastname'] !=
+                                                                  null &&
+                                                              data['lastname'] !=
+                                                                  ''
+                                                          ? ' ' +
+                                                              data['lastname']
+                                                          : ''),
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 16,
+                                                    color: Colors
+                                                        .deepPurple.shade900,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  'ID: \\${data['idNumber'] ?? ''}',
+                                                  style: TextStyle(
+                                                    color: Colors.grey.shade600,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          PopupMenuButton<String>(
+                                            icon: Icon(Icons.more_vert),
+                                            onSelected: (value) {
+                                              switch (value) {
+                                                case 'edit':
+                                                  _showResidentForm(
+                                                      resident: data,
+                                                      viewOnly: false);
+                                                  break;
+                                                case 'view':
+                                                  _showResidentForm(
+                                                      resident: data,
+                                                      viewOnly: true);
+                                                  break;
+                                                case 'delete':
+                                                  _deleteResident(data);
+                                                  break;
+                                              }
+                                            },
+                                            itemBuilder: (context) => [
+                                              PopupMenuItem(
+                                                value: 'edit',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.edit,
+                                                        color: Colors.green,
+                                                        size: 20),
+                                                    SizedBox(width: 8),
+                                                    Text('Edit'),
+                                                  ],
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 'view',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.visibility,
+                                                        color: Colors.blue,
+                                                        size: 20),
+                                                    SizedBox(width: 8),
+                                                    Text('View'),
+                                                  ],
+                                                ),
+                                              ),
+                                              PopupMenuItem(
+                                                value: 'delete',
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.delete,
+                                                        color: Colors.red,
+                                                        size: 20),
+                                                    SizedBox(width: 8),
+                                                    Text('Delete'),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height: 12),
+                                      Wrap(
+                                        spacing: 8,
+                                        runSpacing: 4,
+                                        children: [
+                                          _buildInfoChip('House No.',
+                                              data['householdNo'] ?? ''),
+                                          _buildInfoChip(
+                                              'Purok', data['purok'] ?? ''),
+                                          _buildInfoChip('Age',
+                                              data['age']?.toString() ?? ''),
+                                          _buildInfoChip('Status',
+                                              data['civilStatus'] ?? ''),
+                                          _buildInfoChip(
+                                              'Gender', data['gender'] ?? ''),
+                                          _buildInfoChip('Voter',
+                                              data['voterStatus'] ?? ''),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
                             },
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
-                  SizedBox(height: 16),
-                  StreamBuilder<List<Map<String, dynamic>>>(
-                    stream: residentsStream(),
-                    builder: (context, snapshot) {
-                      print(
-                          'StreamBuilder called, connectionState: \\${snapshot.connectionState}');
-                      if (snapshot.hasError) {
-                        print('StreamBuilder error: \\${snapshot.error}');
-                        return Center(
-                            child: Text('Error: \\${snapshot.error}'));
-                      }
-                      if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(child: Text('No residents found.'));
-                      }
-                      final filteredResidents = snapshot.data!;
-                      // Filter by ID number or any part of the name
-                      final filteredResidentsFiltered =
-                          filteredResidents.where((data) {
-                        final idMatch = (data['idNumber'] ?? '')
-                            .toString()
-                            .toLowerCase()
-                            .contains(_search.toLowerCase());
-                        final nameMatch = (data['firstname'] ?? '')
-                                .toString()
-                                .toLowerCase()
-                                .contains(_search.toLowerCase()) ||
-                            (data['middlename'] ?? '')
-                                .toString()
-                                .toLowerCase()
-                                .contains(_search.toLowerCase()) ||
-                            (data['lastname'] ?? '')
-                                .toString()
-                                .toLowerCase()
-                                .contains(_search.toLowerCase());
-                        return _search.isEmpty || idMatch || nameMatch;
-                      }).toList();
-                      return Column(
-                        children: [
-                          if (isMobile) ...[
-                            // Mobile Card View
-                            ListView.builder(
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: filteredResidentsFiltered
-                                  .take(_rowsPerPage)
-                                  .length,
-                              itemBuilder: (context, i) {
-                                final data = filteredResidentsFiltered[i];
-                                return Card(
-                                  margin: EdgeInsets.only(bottom: 12),
-                                  elevation: 2,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12)),
-                                  child: Padding(
-                                    padding: EdgeInsets.all(16),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundImage: data[
-                                                              'profileImage'] !=
-                                                          null &&
-                                                      data['profileImage'] != ''
-                                                  ? NetworkImage(
-                                                      data['profileImage'])
-                                                  : null,
-                                              child: data['profileImage'] ==
-                                                          null ||
-                                                      data['profileImage'] == ''
-                                                  ? Icon(Icons.person)
-                                                  : null,
-                                              radius: 25,
+                        ] else ...[
+                          // Desktop Table View
+                          Center(
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: Colors.black12, blurRadius: 2)
+                                    ],
+                                  ),
+                                  child: SingleChildScrollView(
+                                    scrollDirection: Axis.horizontal,
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                          minWidth: constraints.maxWidth),
+                                      child: DataTable(
+                                        columnSpacing: 24,
+                                        headingRowColor:
+                                            MaterialStateProperty.all(
+                                                Color(0xFFF6F6FA)),
+                                        dataRowColor: MaterialStateProperty
+                                            .resolveWith<Color?>(
+                                                (Set<MaterialState> states) {
+                                          if (states
+                                              .contains(MaterialState.selected))
+                                            return Colors.deepPurple.shade50;
+                                          return null;
+                                        }),
+                                        dividerThickness: 0.5,
+                                        columns: [
+                                          DataColumn(
+                                            label: Center(child: Text('')),
+                                          ),
+                                          DataColumn(
+                                            label: Center(
+                                                child: Text('ID Number',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ),
+                                          DataColumn(
+                                            label: Container(
+                                              width: 220,
+                                              alignment: Alignment.center,
+                                              child: Text('Full Name',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  textAlign: TextAlign.center),
                                             ),
-                                            SizedBox(width: 12),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
+                                          ),
+                                          DataColumn(
+                                            label: Center(
+                                                child: Text('House No.',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ),
+                                          DataColumn(
+                                            label: Center(
+                                                child: Text('Purok',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ),
+                                          DataColumn(
+                                            label: Center(
+                                                child: Text('Age',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ),
+                                          DataColumn(
+                                            label: Center(
+                                                child: Text('Civil Status',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ),
+                                          DataColumn(
+                                            label: Center(
+                                                child: Text('Gender',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ),
+                                          DataColumn(
+                                            label: Center(
+                                                child: Text('Voter Status',
+                                                    style: TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold))),
+                                          ),
+                                          DataColumn(
+                                            label: Container(
+                                              width: 120,
+                                              alignment: Alignment.center,
+                                              child: Text('Action',
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold),
+                                                  textAlign: TextAlign.center),
+                                            ),
+                                          ),
+                                        ],
+                                        rows: List.generate(
+                                            filteredResidentsFiltered
+                                                .take(_rowsPerPage)
+                                                .length, (i) {
+                                          final data =
+                                              filteredResidentsFiltered[i];
+                                          final isEven = i % 2 == 0;
+                                          return DataRow(
+                                            color: MaterialStateProperty.all(
+                                                isEven
+                                                    ? Color(0xFFF8F8FA)
+                                                    : Colors.white),
+                                            cells: [
+                                              DataCell(Center(
+                                                  child: data['profileImage'] !=
+                                                              null &&
+                                                          data['profileImage'] !=
+                                                              ''
+                                                      ? CircleAvatar(
+                                                          backgroundImage:
+                                                              NetworkImage(data[
+                                                                  'profileImage']),
+                                                          radius: 20)
+                                                      : CircleAvatar(
+                                                          child: Icon(
+                                                              Icons.person),
+                                                          radius: 20))),
+                                              DataCell(Center(
+                                                  child: Text(
+                                                      data['idNumber'] ?? ''))),
+                                              DataCell(
+                                                Container(
+                                                  width: 220,
+                                                  alignment: Alignment.center,
+                                                  child: Text(
                                                     (data['firstname'] ?? '') +
                                                         (data['middlename'] !=
                                                                     null &&
@@ -377,485 +635,208 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
                                                                 data['lastname']
                                                             : ''),
                                                     style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 16,
-                                                      color: Colors
-                                                          .deepPurple.shade900,
-                                                    ),
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.deepPurple
+                                                            .shade900,
+                                                        fontSize: 15),
+                                                    textAlign: TextAlign.center,
                                                   ),
-                                                  Text(
-                                                    'ID: \\${data['idNumber'] ?? ''}',
-                                                    style: TextStyle(
-                                                      color:
-                                                          Colors.grey.shade600,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                ],
+                                                ),
                                               ),
-                                            ),
-                                            PopupMenuButton<String>(
-                                              icon: Icon(Icons.more_vert),
-                                              onSelected: (value) {
-                                                switch (value) {
-                                                  case 'edit':
-                                                    _showResidentForm(
-                                                        resident: data,
-                                                        viewOnly: false);
-                                                    break;
-                                                  case 'view':
-                                                    _showResidentForm(
-                                                        resident: data,
-                                                        viewOnly: true);
-                                                    break;
-                                                  case 'delete':
-                                                    _deleteResident(data);
-                                                    break;
-                                                }
-                                              },
-                                              itemBuilder: (context) => [
-                                                PopupMenuItem(
-                                                  value: 'edit',
+                                              DataCell(Center(
+                                                  child: Text(
+                                                      data['householdNo'] ??
+                                                          ''))),
+                                              DataCell(Center(
+                                                  child: Text((data['purok'] ??
+                                                          '')
+                                                      .replaceFirst(
+                                                          'PUROK - ', '')))),
+                                              DataCell(Center(
+                                                  child: Text(
+                                                      data['age']?.toString() ??
+                                                          ''))),
+                                              DataCell(Center(
+                                                  child: Text(
+                                                      data['civilStatus'] ??
+                                                          ''))),
+                                              DataCell(Center(
+                                                  child: Text(
+                                                      data['gender'] ?? ''))),
+                                              DataCell(Center(
+                                                  child: Text(
+                                                      data['voterStatus'] ??
+                                                          ''))),
+                                              DataCell(
+                                                Container(
+                                                  width: 120,
+                                                  alignment: Alignment.center,
                                                   child: Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    mainAxisSize:
+                                                        MainAxisSize.max,
                                                     children: [
-                                                      Icon(Icons.edit,
-                                                          color: Colors.green,
-                                                          size: 20),
-                                                      SizedBox(width: 8),
-                                                      Text('Edit'),
+                                                      IconButton(
+                                                        icon: Icon(Icons.edit,
+                                                            color:
+                                                                Colors.green),
+                                                        tooltip: 'Edit',
+                                                        onPressed: () {
+                                                          _showResidentForm(
+                                                              resident: data,
+                                                              viewOnly: false);
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        icon: Icon(
+                                                            Icons.visibility,
+                                                            color: Colors.blue),
+                                                        tooltip: 'View',
+                                                        onPressed: () {
+                                                          _showResidentForm(
+                                                              resident: data,
+                                                              viewOnly: true);
+                                                        },
+                                                      ),
+                                                      IconButton(
+                                                        icon: Icon(Icons.delete,
+                                                            color: Colors.red),
+                                                        tooltip: 'Delete',
+                                                        onPressed: () {
+                                                          _deleteResident(data);
+                                                        },
+                                                      ),
                                                     ],
                                                   ),
                                                 ),
-                                                PopupMenuItem(
-                                                  value: 'view',
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.visibility,
-                                                          color: Colors.blue,
-                                                          size: 20),
-                                                      SizedBox(width: 8),
-                                                      Text('View'),
-                                                    ],
-                                                  ),
-                                                ),
-                                                PopupMenuItem(
-                                                  value: 'delete',
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(Icons.delete,
-                                                          color: Colors.red,
-                                                          size: 20),
-                                                      SizedBox(width: 8),
-                                                      Text('Delete'),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 12),
-                                        Wrap(
-                                          spacing: 8,
-                                          runSpacing: 4,
-                                          children: [
-                                            _buildInfoChip('House No.',
-                                                data['householdNo'] ?? ''),
-                                            _buildInfoChip(
-                                                'Purok', data['purok'] ?? ''),
-                                            _buildInfoChip('Age',
-                                                data['age']?.toString() ?? ''),
-                                            _buildInfoChip('Status',
-                                                data['civilStatus'] ?? ''),
-                                            _buildInfoChip(
-                                                'Gender', data['gender'] ?? ''),
-                                            _buildInfoChip('Voter',
-                                                data['voterStatus'] ?? ''),
-                                          ],
-                                        ),
-                                      ],
+                                              ),
+                                            ],
+                                          );
+                                        }),
+                                      ),
                                     ),
                                   ),
                                 );
                               },
                             ),
-                          ] else ...[
-                            // Desktop Table View
-                            Center(
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.black12,
-                                            blurRadius: 2)
-                                      ],
-                                    ),
-                                    child: SingleChildScrollView(
-                                      scrollDirection: Axis.horizontal,
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                            minWidth: constraints.maxWidth),
-                                        child: DataTable(
-                                          columnSpacing: 24,
-                                          headingRowColor:
-                                              MaterialStateProperty.all(
-                                                  Color(0xFFF6F6FA)),
-                                          dataRowColor: MaterialStateProperty
-                                              .resolveWith<Color?>(
-                                                  (Set<MaterialState> states) {
-                                            if (states.contains(
-                                                MaterialState.selected))
-                                              return Colors.deepPurple.shade50;
-                                            return null;
-                                          }),
-                                          dividerThickness: 0.5,
-                                          columns: [
-                                            DataColumn(
-                                              label: Center(child: Text('')),
-                                            ),
-                                            DataColumn(
-                                              label: Center(
-                                                  child: Text('ID Number',
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))),
-                                            ),
-                                            DataColumn(
-                                              label: Container(
-                                                width: 220,
-                                                alignment: Alignment.center,
-                                                child: Text('Full Name',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    textAlign:
-                                                        TextAlign.center),
-                                              ),
-                                            ),
-                                            DataColumn(
-                                              label: Center(
-                                                  child: Text('House No.',
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))),
-                                            ),
-                                            DataColumn(
-                                              label: Center(
-                                                  child: Text('Purok',
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))),
-                                            ),
-                                            DataColumn(
-                                              label: Center(
-                                                  child: Text('Age',
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))),
-                                            ),
-                                            DataColumn(
-                                              label: Center(
-                                                  child: Text('Civil Status',
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))),
-                                            ),
-                                            DataColumn(
-                                              label: Center(
-                                                  child: Text('Gender',
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))),
-                                            ),
-                                            DataColumn(
-                                              label: Center(
-                                                  child: Text('Voter Status',
-                                                      style: TextStyle(
-                                                          fontWeight: FontWeight
-                                                              .bold))),
-                                            ),
-                                            DataColumn(
-                                              label: Container(
-                                                width: 120,
-                                                alignment: Alignment.center,
-                                                child: Text('Action',
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    textAlign:
-                                                        TextAlign.center),
-                                              ),
-                                            ),
-                                          ],
-                                          rows: List.generate(
-                                              filteredResidentsFiltered
-                                                  .take(_rowsPerPage)
-                                                  .length, (i) {
-                                            final data =
-                                                filteredResidentsFiltered[i];
-                                            final isEven = i % 2 == 0;
-                                            return DataRow(
-                                              color: MaterialStateProperty.all(
-                                                  isEven
-                                                      ? Color(0xFFF8F8FA)
-                                                      : Colors.white),
-                                              cells: [
-                                                DataCell(Center(
-                                                    child: data['profileImage'] !=
-                                                                null &&
-                                                            data['profileImage'] !=
-                                                                ''
-                                                        ? CircleAvatar(
-                                                            backgroundImage:
-                                                                NetworkImage(data[
-                                                                    'profileImage']),
-                                                            radius: 20)
-                                                        : CircleAvatar(
-                                                            child: Icon(
-                                                                Icons.person),
-                                                            radius: 20))),
-                                                DataCell(Center(
-                                                    child: Text(
-                                                        data['idNumber'] ??
-                                                            ''))),
-                                                DataCell(
-                                                  Container(
-                                                    width: 220,
-                                                    alignment: Alignment.center,
-                                                    child: Text(
-                                                      (data['firstname'] ??
-                                                              '') +
-                                                          (data['middlename'] !=
-                                                                      null &&
-                                                                  data['middlename'] !=
-                                                                      ''
-                                                              ? ' ' +
-                                                                  data[
-                                                                      'middlename']
-                                                              : '') +
-                                                          (data['lastname'] !=
-                                                                      null &&
-                                                                  data['lastname'] !=
-                                                                      ''
-                                                              ? ' ' +
-                                                                  data[
-                                                                      'lastname']
-                                                              : ''),
-                                                      style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w600,
-                                                          color: Colors
-                                                              .deepPurple
-                                                              .shade900,
-                                                          fontSize: 15),
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(Center(
-                                                    child: Text(
-                                                        data['householdNo'] ??
-                                                            ''))),
-                                                DataCell(Center(
-                                                    child: Text(
-                                                        data['purok'] ?? ''))),
-                                                DataCell(Center(
-                                                    child: Text(data['age']
-                                                            ?.toString() ??
-                                                        ''))),
-                                                DataCell(Center(
-                                                    child: Text(
-                                                        data['civilStatus'] ??
-                                                            ''))),
-                                                DataCell(Center(
-                                                    child: Text(
-                                                        data['gender'] ?? ''))),
-                                                DataCell(Center(
-                                                    child: Text(
-                                                        data['voterStatus'] ??
-                                                            ''))),
-                                                DataCell(
-                                                  Container(
-                                                    width: 120,
-                                                    alignment: Alignment.center,
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      mainAxisSize:
-                                                          MainAxisSize.max,
-                                                      children: [
-                                                        IconButton(
-                                                          icon: Icon(Icons.edit,
-                                                              color:
-                                                                  Colors.green),
-                                                          tooltip: 'Edit',
-                                                          onPressed: () {
-                                                            _showResidentForm(
-                                                                resident: data,
-                                                                viewOnly:
-                                                                    false);
-                                                          },
-                                                        ),
-                                                        IconButton(
-                                                          icon: Icon(
-                                                              Icons.visibility,
-                                                              color:
-                                                                  Colors.blue),
-                                                          tooltip: 'View',
-                                                          onPressed: () {
-                                                            _showResidentForm(
-                                                                resident: data,
-                                                                viewOnly: true);
-                                                          },
-                                                        ),
-                                                        IconButton(
-                                                          icon: Icon(
-                                                              Icons.delete,
-                                                              color:
-                                                                  Colors.red),
-                                                          tooltip: 'Delete',
-                                                          onPressed: () {
-                                                            _deleteResident(
-                                                                data);
-                                                          },
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ),
-                                              ],
-                                            );
-                                          }),
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ],
-                          SizedBox(height: 16),
-                          if (isMobile) ...[
-                            // Mobile Pagination
-                            Column(
-                              children: [
-                                Text(
-                                  'Showing 1 to \\${filteredResidentsFiltered.length < _rowsPerPage ? filteredResidentsFiltered.length : _rowsPerPage} of \\${filteredResidentsFiltered.length} entries',
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.grey.shade600),
-                                  textAlign: TextAlign.center,
-                                ),
-                                SizedBox(height: 12),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    OutlinedButton(
-                                      onPressed: null,
-                                      style: OutlinedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        side: BorderSide(
-                                            color: Colors.grey.shade300),
-                                      ),
-                                      child: Text('Previous',
-                                          style: TextStyle(fontSize: 14)),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text('1',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 14)),
-                                    ),
-                                    SizedBox(width: 8),
-                                    OutlinedButton(
-                                      onPressed: null,
-                                      style: OutlinedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        side: BorderSide(
-                                            color: Colors.grey.shade300),
-                                      ),
-                                      child: Text('Next',
-                                          style: TextStyle(fontSize: 14)),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ] else ...[
-                            // Desktop Pagination
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                    'Showing 1 to \\${filteredResidentsFiltered.length < _rowsPerPage ? filteredResidentsFiltered.length : _rowsPerPage} of \\${filteredResidentsFiltered.length} entries'),
-                                Row(
-                                  children: [
-                                    OutlinedButton(
-                                      onPressed: null,
-                                      style: OutlinedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        side: BorderSide(
-                                            color: Colors.grey.shade300),
-                                      ),
-                                      child: Text('Previous'),
-                                    ),
-                                    SizedBox(width: 8),
-                                    Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.blue,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text('1',
-                                          style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold)),
-                                    ),
-                                    SizedBox(width: 8),
-                                    OutlinedButton(
-                                      onPressed: null,
-                                      style: OutlinedButton.styleFrom(
-                                        shape: RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(20)),
-                                        side: BorderSide(
-                                            color: Colors.grey.shade300),
-                                      ),
-                                      child: Text('Next'),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
+                          ),
                         ],
-                      );
-                    },
-                  ),
-                ],
-              ),
+                        SizedBox(height: 16),
+                        if (isMobile) ...[
+                          // Mobile Pagination
+                          Column(
+                            children: [
+                              Text(
+                                'Showing 1 to \\${filteredResidentsFiltered.length < _rowsPerPage ? filteredResidentsFiltered.length : _rowsPerPage} of \\${filteredResidentsFiltered.length} entries',
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.grey.shade600),
+                                textAlign: TextAlign.center,
+                              ),
+                              SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  OutlinedButton(
+                                    onPressed: null,
+                                    style: OutlinedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade300),
+                                    ),
+                                    child: Text('Previous',
+                                        style: TextStyle(fontSize: 14)),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text('1',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 14)),
+                                  ),
+                                  SizedBox(width: 8),
+                                  OutlinedButton(
+                                    onPressed: null,
+                                    style: OutlinedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade300),
+                                    ),
+                                    child: Text('Next',
+                                        style: TextStyle(fontSize: 14)),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ] else ...[
+                          // Desktop Pagination
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                  'Showing 1 to \\${filteredResidentsFiltered.length < _rowsPerPage ? filteredResidentsFiltered.length : _rowsPerPage} of \\${filteredResidentsFiltered.length} entries'),
+                              Row(
+                                children: [
+                                  OutlinedButton(
+                                    onPressed: null,
+                                    style: OutlinedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade300),
+                                    ),
+                                    child: Text('Previous'),
+                                  ),
+                                  SizedBox(width: 8),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                      color: Colors.blue,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text('1',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold)),
+                                  ),
+                                  SizedBox(width: 8),
+                                  OutlinedButton(
+                                    onPressed: null,
+                                    style: OutlinedButton.styleFrom(
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20)),
+                                      side: BorderSide(
+                                          color: Colors.grey.shade300),
+                                    ),
+                                    child: Text('Next'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+              ],
             ),
           ),
         ),
@@ -947,22 +928,17 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
   }
 
   String _formatResidentId(String purok, int globalSequence) {
-    // Support new format "PUROK - X" or "PUROK - XA" and legacy "Purok X - A/B"
-    final List<RegExp> patterns = [
-      RegExp(r'^PUROK\s*-\s*(\d{1,2})(A)?$', caseSensitive: false),
-      RegExp(r'^Purok\s+(\d{1,2})(?:\s*-\s*([AB]))?$', caseSensitive: false),
-    ];
+    // Handle simplified format "1", "1A", "2", etc.
+    final match = RegExp(r'^(\d{1,2})(A)?$').firstMatch(purok.trim());
     String purokNum = '00';
     String subPurok = '0';
-    for (final reg in patterns) {
-      final match = reg.firstMatch(purok.trim());
-      if (match != null) {
-        purokNum = match.group(1)!.padLeft(2, '0');
-        final sub = match.group(2);
-        if (sub != null && sub.toUpperCase() == 'A') subPurok = '1';
-        break;
-      }
+
+    if (match != null) {
+      purokNum = match.group(1)!.padLeft(2, '0');
+      final sub = match.group(2);
+      if (sub != null && sub.toUpperCase() == 'A') subPurok = '1';
     }
+
     final sequence = globalSequence.toString().padLeft(4, '0');
     return '$purokNum$subPurok$sequence';
   }
@@ -1005,52 +981,64 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
         .add(residentData);
   }
 
-  void _showResidentForm(
-      {Map<String, dynamic>? resident, bool viewOnly = false}) async {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 768;
-    // Pre-fill controllers with resident data if editing or viewing
-    if (resident != null) {
-      _controllers['firstname']?.text = resident['firstname'] ?? '';
-      _controllers['middlename']?.text = resident['middlename'] ?? '';
-      _controllers['lastname']?.text = resident['lastname'] ?? '';
-      _controllers['suffix']?.text = resident['suffix'] ?? '';
-      _controllers['birthplace']?.text = resident['birthplace'] ?? '';
-      _controllers['birthday']?.text = resident['birthday'] ?? '';
-      _controllers['age']?.text = resident['age']?.toString() ?? '';
-      _controllers['civilStatus']?.text = resident['civilStatus'] ?? '';
-      _controllers['gender']?.text = resident['gender'] ?? '';
-      _controllers['purok']?.text = resident['purok'] ?? '';
-      _controllers['voterStatus']?.text = resident['voterStatus'] ?? '';
-      _controllers['email']?.text = resident['email'] ?? '';
-      _controllers['contact']?.text = resident['contact'] ?? '';
-      _controllers['occupation']?.text = resident['occupation'] ?? '';
-      _controllers['citizenship']?.text = resident['citizenship'] ?? '';
-      _controllers['address']?.text = resident['address'] ?? '';
-      _controllers['householdNo']?.text = resident['householdNo'] ?? '';
-      _editingIdNumber = resident['idNumber'] ?? '';
-      _profileImageUrl = resident['profileImage'] ?? '';
-    } else {
-      _editingIdNumber = null;
-      _profileImageUrl = null;
-    }
-    String? previewIdNumber;
-    final ValueNotifier<String?> idPreviewNotifier =
-        ValueNotifier<String?>(null);
-    void updateIdPreview() async {
-      final purok = _controllers['purok']!.text;
-      if (purok.isNotEmpty) {
-        final id = await generateResidentIdPreview(purok);
-        idPreviewNotifier.value = id;
-      } else {
-        idPreviewNotifier.value = null;
+ void _showResidentForm(
+    {Map<String, dynamic>? resident, bool viewOnly = false}) async {
+  final screenWidth = MediaQuery.of(context).size.width;
+  final isMobile = screenWidth < 768;
+  
+  // Pre-fill controllers with resident data if editing or viewing
+  if (resident != null) {
+    _controllers['firstname']?.text = resident['firstname'] ?? '';
+    _controllers['middlename']?.text = resident['middlename'] ?? '';
+    _controllers['lastname']?.text = resident['lastname'] ?? '';
+    _controllers['suffix']?.text = resident['suffix'] ?? '';
+    _controllers['birthplace']?.text = resident['birthplace'] ?? '';
+    _controllers['birthday']?.text = resident['birthday'] ?? '';
+    _controllers['age']?.text = resident['age']?.toString() ?? '';
+    _controllers['civilStatus']?.text = resident['civilStatus'] ?? '';
+    _controllers['gender']?.text = resident['gender'] ?? '';
+    _controllers['purok']?.text = resident['purok'] ?? '';
+    _controllers['voterStatus']?.text = resident['voterStatus'] ?? '';
+    _controllers['email']?.text = resident['email'] ?? '';
+    _controllers['contact']?.text = resident['contact'] ?? '';
+    _controllers['occupation']?.text = resident['occupation'] ?? '';
+    _controllers['citizenship']?.text = resident['citizenship'] ?? '';
+    _controllers['address']?.text = resident['address'] ?? '';
+    _controllers['householdNo']?.text = resident['householdNo'] ?? '';
+    _editingIdNumber = resident['idNumber'] ?? '';
+    _profileImageUrl = resident['profileImage'] ?? '';
+  } else {
+    _editingIdNumber = null;
+    _profileImageUrl = null;
+  }
+
+  final ValueNotifier<String?> idPreviewNotifier = ValueNotifier<String?>(null);
+
+  // Generate ID immediately for new residents (AWAIT this before showing dialog)
+  if (resident == null) {
+    final purok = _controllers['purok']!.text.isEmpty ? '1' : _controllers['purok']!.text;
+    final nextSeq = await _getNextSequencePreview();
+    idPreviewNotifier.value = _formatResidentId(purok, nextSeq);
+  }
+
+  // Update ID when purok changes (only update prefix, keep sequence)
+  void updateIdPreview() {
+    if (resident == null) {
+      final purok = _controllers['purok']!.text.isEmpty ? '1' : _controllers['purok']!.text;
+      final currentId = idPreviewNotifier.value ?? '';
+      if (currentId.isNotEmpty && currentId.length >= 7) {
+        // Extract the sequence number (last 4 digits)
+        final sequence = int.tryParse(currentId.substring(3)) ?? 1;
+        idPreviewNotifier.value = _formatResidentId(purok, sequence);
       }
     }
+  }
 
-    _controllers['purok']!.addListener(updateIdPreview);
-    await showDialog(
-      context: context,
-      builder: (context) {
+  _controllers['purok']!.addListener(updateIdPreview);
+
+  await showDialog(
+    context: context,
+    builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
             return Dialog(
@@ -2523,9 +2511,25 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
       {TextEditingController? controller,
       bool required = true,
       bool readOnly = false}) {
+    // Normalize the value from Firestore to match dropdown items
+    String? normalizedValue;
+    if (controller?.text.isNotEmpty == true) {
+      String currentValue = controller!.text;
+      // Remove "PUROK - " prefix if it exists
+      if (currentValue.startsWith('PUROK - ')) {
+        normalizedValue = currentValue.replaceFirst('PUROK - ', '');
+      } else {
+        normalizedValue = currentValue;
+      }
+      // Only use it if it exists in items list
+      if (!items.contains(normalizedValue)) {
+        normalizedValue = null;
+      }
+    }
+
     return DropdownButtonFormField<String>(
       isExpanded: true,
-      value: controller?.text.isNotEmpty == true ? controller!.text : null,
+      value: normalizedValue,
       decoration: InputDecoration(
         labelText: hint,
         hintText: hint,
@@ -2551,9 +2555,11 @@ class _ResidentsRecordPageState extends State<ResidentsRecordPage> {
           .map((e) => DropdownMenuItem(
               value: e, child: Text(e, overflow: TextOverflow.ellipsis)))
           .toList(),
-      onChanged: (value) {
-        if (controller != null) controller.text = value ?? '';
-      },
+      onChanged: readOnly
+          ? null
+          : (value) {
+              if (controller != null) controller.text = value ?? '';
+            },
       validator: required && !readOnly
           ? (value) {
               if (value == null || value.isEmpty) {

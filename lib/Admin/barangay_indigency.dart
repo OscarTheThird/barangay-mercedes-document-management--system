@@ -16,19 +16,19 @@ class _BarangayIndigencyTablePageState
   String _statusFilter = 'all';
 
   final List<String> _puroks = [
-    '1',
-    '1A',
-    '2',
-    '3',
-    '4',
-    '4A',
-    '5',
-    '5A',
-    '6',
-    '7',
-    '7A',
-    '8',
-  ];
+  'PUROK - 1',
+  'PUROK - 1A',
+  'PUROK - 2',
+  'PUROK - 3',
+  'PUROK - 4',
+  'PUROK - 4A',
+  'PUROK - 5',
+  'PUROK - 5A',
+  'PUROK - 6',
+  'PUROK - 7',
+  'PUROK - 7A',
+  'PUROK - 8',
+];
 
   Future<Map<String, dynamic>?> getResidentByIdNumber(String idNumber) async {
     for (String purok in _puroks) {
