@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:document_management_system/widgets/barangay_certification.dart';
 import 'package:intl/intl.dart';
 
 class BarangayCertificatesPage extends StatefulWidget {
@@ -820,46 +821,33 @@ class _BarangayCertificatesPageState extends State<BarangayCertificatesPage> {
     }
   }
 
-  // Show request details dialog
-  void _showRequestDetails(BuildContext context, Map<String, dynamic> data) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.verified, color: Colors.deepPurple),
-            SizedBox(width: 8),
-            Text('Certification Details'),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailRow('Request ID', data['requestId']),
-              Divider(),
-              _buildDetailRow('ID Number', data['idNumber']),
-              _buildDetailRow('Full Name', data['fullName']),
-              _buildDetailRow('Purok', data['purok']),
-              _buildDetailRow('Contact', data['contact']),
-              Divider(),
-              _buildDetailRow('Purpose', data['purpose']),
-              _buildDetailRow('Date Submitted', data['dateSubmitted']),
-              _buildDetailRow(
-                  'Status', data['status'].toString().toUpperCase()),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
-          ),
-        ],
+ // Replace the existing _showRequestDetails method with this:
+void _showRequestDetails(BuildContext context, Map<String, dynamic> data) {
+  final residentData = data['residentData'] as Map<String, dynamic>?;
+  
+  if (residentData == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Resident data not found'),
+        backgroundColor: Colors.red,
       ),
     );
+    return;
   }
+
+  // Import the certification screen at the top of your file
+  // import 'barangay_certification.dart';
+  
+  showDialog(
+    context: context,
+    builder: (context) => CertificateDialog(
+      name: data['fullName'] ?? '',
+      age: residentData['age']?.toString() ?? '',
+      civilStatus: residentData['civilStatus'] ?? 'single',
+      purok: data['purok'] ?? '',
+    ),
+  );
+}
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(

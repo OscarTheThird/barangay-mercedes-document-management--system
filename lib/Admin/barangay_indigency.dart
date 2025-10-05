@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:document_management_system/widgets/barangay_indigency.dart';
 
 class BarangayIndigencyTablePage extends StatefulWidget {
   const BarangayIndigencyTablePage({super.key});
@@ -72,59 +73,31 @@ class _BarangayIndigencyTablePageState
     }
   }
 
-  void _showDetailsDialog(
-      Map<String, dynamic> request, Map<String, dynamic>? resident) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Request Details'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailRow('Request ID', request['requestId'] ?? 'N/A'),
-              _buildDetailRow('ID Number', request['idNumber'] ?? 'N/A'),
-              _buildDetailRow('Purpose', request['purpose'] ?? 'N/A'),
-              _buildDetailRow('Status', request['status'] ?? 'N/A'),
-              _buildDetailRow(
-                  'Date Submitted',
-                  request['timestamp'] != null
-                      ? (request['timestamp'] as Timestamp)
-                          .toDate()
-                          .toString()
-                          .split('.')[0]
-                      : 'N/A'),
-              Divider(height: 24),
-              Text('Resident Information',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              SizedBox(height: 8),
-              if (resident != null) ...[
-                _buildDetailRow('Full Name',
-                    '${resident['firstname'] ?? ''} ${resident['middlename'] ?? ''} ${resident['lastname'] ?? ''}'),
-                _buildDetailRow('Age', resident['age']?.toString() ?? 'N/A'),
-                _buildDetailRow('Gender', resident['gender'] ?? 'N/A'),
-                _buildDetailRow(
-                    'Civil Status', resident['civilStatus'] ?? 'N/A'),
-                _buildDetailRow('Purok', resident['purok'] ?? 'N/A'),
-                _buildDetailRow('Address', resident['address'] ?? 'N/A'),
-                _buildDetailRow('Contact', resident['contact'] ?? 'N/A'),
-                _buildDetailRow(
-                    'Voter Status', resident['voterStatus'] ?? 'N/A'),
-              ] else
-                Text('Resident not found', style: TextStyle(color: Colors.red)),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Close'),
-          ),
-        ],
+ void _showDetailsDialog(
+    Map<String, dynamic> request, Map<String, dynamic>? resident) {
+  if (resident == null) {
+    // Show error if resident not found
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Resident information not found'),
+        backgroundColor: Colors.red,
       ),
     );
+    return;
   }
+
+  // Import the CertificateDialog from barangay_indigency.dart
+  showDialog(
+    context: context,
+    builder: (context) => CertificateDialog(
+      name: '${resident['firstname'] ?? ''} ${resident['middlename'] ?? ''} ${resident['lastname'] ?? ''}',
+      age: resident['age']?.toString() ?? '',
+      address: resident['address'] ?? '',
+      purok: resident['purok'] ?? '',
+      purpose: request['purpose'] ?? '',
+    ),
+  );
+}
 
   Widget _buildDetailRow(String label, String value) {
     return Padding(
