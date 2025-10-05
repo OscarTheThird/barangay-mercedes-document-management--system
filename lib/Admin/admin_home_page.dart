@@ -392,7 +392,7 @@ class _AdminHomePageState extends State<AdminHomePage> {
     }
     if (_selectedIndex == 1) {
       // Brgy Officials and Staff Section
-      return BarangayCoordinatorContent();
+      return BarangayCoordinatorPage();
     }
     if (_selectedIndex == 2) {
       // Residents Record Section

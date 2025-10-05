@@ -1,13 +1,100 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:document_management_system/widgets/downloadpdf.dart';
 
-class BarangayClearanceCertificate extends StatelessWidget {
-  final Map<String, dynamic> residentData;
+class BarangayClearanceCertificate extends StatefulWidget {
+  final String idNumber;
 
   const BarangayClearanceCertificate({
     super.key,
-    required this.residentData,
+    required this.idNumber,
   });
+
+  @override
+  State<BarangayClearanceCertificate> createState() => _BarangayClearanceCertificateState();
+}
+
+class _BarangayClearanceCertificateState extends State<BarangayClearanceCertificate> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  Map<String, dynamic>? residentData;
+  Map<String, Map<String, String>> officialsData = {};
+  bool isLoading = true;
+  String? errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      await Future.wait([
+        _loadResidentData(),
+        _loadOfficialsData(),
+      ]);
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Error loading data: $e';
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _loadResidentData() async {
+    // Search through all purok collections with correct document IDs
+    final puroks = [
+      'PUROK - 1',
+      'PUROK - 1A',
+      'PUROK - 2',
+      'PUROK - 3',
+      'PUROK - 4',
+      'PUROK - 4A',
+      'PUROK - 5',
+      'PUROK - 5A',
+      'PUROK - 6',
+      'PUROK - 7',
+      'PUROK - 7A',
+      'PUROK - 8',
+    ];
+    
+    for (String purok in puroks) {
+      try {
+        final snapshot = await _firestore
+            .collection('residents')
+            .doc(purok)
+            .collection('list')
+            .where('idNumber', isEqualTo: widget.idNumber)
+            .limit(1)
+            .get();
+
+        if (snapshot.docs.isNotEmpty) {
+          residentData = snapshot.docs.first.data();
+          return;
+        }
+      } catch (e) {
+        // Continue to next purok if this one fails
+        continue;
+      }
+    }
+    
+    throw Exception('Resident with ID ${widget.idNumber} not found');
+  }
+
+  Future<void> _loadOfficialsData() async {
+    final snapshot = await _firestore.collection('barangay_officials').get();
+    
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      officialsData[doc.id] = {
+        'name': data['name'] ?? '',
+        'title': data['title'] ?? '',
+      };
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,15 +125,21 @@ class BarangayClearanceCertificate extends StatelessWidget {
                     children: [
                       IconButton(
                         icon: Icon(Icons.print),
-                        onPressed: () {},
+                        onPressed: isLoading ? null : () {},
                         tooltip: 'Print',
                       ),
                       IconButton(
                         icon: Icon(Icons.download, color: Colors.green),
                         tooltip: 'Download PDF',
-                        onPressed: () {
-                          generateAndDownloadBarangayClearancePDF(context, residentData);
-                        },
+                        onPressed: isLoading || residentData == null
+                            ? null
+                            : () {
+                                generateAndDownloadBarangayClearancePDF(
+                                  context,
+                                  residentData!,
+                                  officialsData,
+                                );
+                              },
                       ),
                       IconButton(
                         icon: Icon(Icons.close),
@@ -59,14 +152,27 @@ class BarangayClearanceCertificate extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Container(
-                  width: modalWidth,
-                  color: Colors.white,
-                  padding: EdgeInsets.all(36),
-                  child: _buildMainContent(),
-                ),
-              ),
+              child: isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : errorMessage != null
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(20),
+                            child: Text(
+                              errorMessage!,
+                              style: TextStyle(color: Colors.red),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          child: Container(
+                            width: modalWidth,
+                            color: Colors.white,
+                            padding: EdgeInsets.all(36),
+                            child: _buildMainContent(),
+                          ),
+                        ),
             ),
           ],
         ),
@@ -128,39 +234,62 @@ class BarangayClearanceCertificate extends StatelessWidget {
         SizedBox(height: 16),
         Text('BARANGAY OFFICIALS', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 16, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
         SizedBox(height: 12),
-        _buildOfficialName('HON. CHRISTIAN BERNARD J. OÑATE', isBlue: true),
+        
+        // Barangay Chairman
+        _buildOfficialName(officialsData['Barangay Chairman']?['name'] ?? 'HON. CHRISTIAN BERNARD J. OÑATE', isBlue: true),
         _buildChairmanTitle('Barangay Chairman'),
         SizedBox(height: 8),
+        
         Text('KAGAWAD', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 18, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
         SizedBox(height: 8),
-        _buildOfficialName('HON. FEDERICO M. PORCIL', isBlue: true),
+        
+        // Finance Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Finance-Budget and Appropriation and Laws and Legal Matters']?['name'] ?? 'HON. FEDERICO M. PORCIL', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on Finance,\nBudget and Appropriation and Laws\nand Legal Matters'),
         SizedBox(height: 8),
-        _buildOfficialName('HON. LUZVIMINDA G. MAGA', isBlue: true),
+        
+        // Social Welfare Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Social Welfare and Senior Citizen Affairs and Health and Nutrition-Cleanliness and Sanitation']?['name'] ?? 'HON. LUZVIMINDA G. MAGA', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on Social Welfare and\nSenior Citizen Affairs and Health and\nNutrition, Cleanliness and Sanitation'),
         SizedBox(height: 8),
-        _buildOfficialName('HON. MARICHU P. RACUYAL', isBlue: true),
+        
+        // Purok Affairs Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Purok Affairs and Women- Children and Family']?['name'] ?? 'HON. MARICHU P. RACUYAL', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on Purok Affairs\nand Women, Children and Family'),
         SizedBox(height: 8),
-        _buildOfficialName('HON. FRANCES ANN C. BERMEJO', isBlue: true),
+        
+        // Disaster Risk Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Disaster Risk Reduction and Management and Tourism and Arts and Culture and Environment Protection']?['name'] ?? 'HON. FRANCES ANN C. BERMEJO', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on Disaster Risk\nReduction and Management and\nTourism and Arts and Culture and\nEnvironment Protection'),
         SizedBox(height: 8),
-        _buildOfficialName('HON. JUSTITO T. UY', isBlue: true),
+        
+        // Infrastructure Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Infrastructure and Agriculture and Fisheries']?['name'] ?? 'HON. JUSTITO T. UY', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on\nInfrastructure and Agriculture and\nFisheries'),
         SizedBox(height: 8),
-        _buildOfficialName('HON. EDUARDO M. NIEGO', isBlue: true),
+        
+        // Cooperatives Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Cooperatives and Education and Ways and Means']?['name'] ?? 'HON. EDUARDO M. NIEGO', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on\nCooperatives and Education and Ways\nand Means'),
         SizedBox(height: 8),
-        _buildOfficialName('HON. ANTONIO R. CABAEL', isBlue: true),
+        
+        // Climate Change Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Climate Change and Public Safety- Peace and Order']?['name'] ?? 'HON. ANTONIO R. CABAEL', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on Climate\nChange and Public Safety, Peace and\nOrder'),
         SizedBox(height: 8),
-        _buildOfficialName('HON. VAN JOSHUA NUÑEZ', isBlue: true),
+        
+        // Youth Committee
+        _buildOfficialName(officialsData['Chairman-Committee on Youth and Sports Development']?['name'] ?? 'HON. VAN JOSHUA NUÑEZ', isBlue: true),
         _buildOfficialTitle('Chairman, Committee on Youth and\nSports Development'),
         SizedBox(height: 12),
-        _buildOfficialName('JOANA Z. JABONERO', isBlue: true),
+        
+        // Secretary
+        _buildOfficialName(officialsData['Barangay Secretary']?['name'] ?? 'JOANA Z. JABONERO', isBlue: true),
         _buildOfficialTitle('Barangay Secretary'),
         SizedBox(height: 8),
-        _buildOfficialName('TEODOSIA A. ABAYAN', isBlue: true),
+        
+        // Treasurer
+        _buildOfficialName(officialsData['Barangay Treasurer']?['name'] ?? 'TEODOSIA A. ABAYAN', isBlue: true),
         _buildOfficialTitle('Barangay Treasurer'),
       ],
     );
@@ -179,11 +308,18 @@ class BarangayClearanceCertificate extends StatelessWidget {
   }
 
   Widget _buildCertificateContent() {
-    final fullName = residentData['fullName'] ?? '_____________________';
-    final age = _calculateAge(residentData['residentData']);
-    final civilStatus = residentData['residentData']?['civilStatus'] ?? 'single/married/widow';
-    final purok = residentData['purok'] ?? '___';
+    if (residentData == null) return SizedBox();
+
+    final firstname = residentData!['firstname'] ?? '';
+    final middlename = residentData!['middlename'] ?? '';
+    final lastname = residentData!['lastname'] ?? '';
+    final fullName = '$firstname $middlename $lastname'.trim();
+    
+    final age = _calculateAge(residentData!['birthday']);
+    final civilStatus = residentData!['civilStatus'] ?? 'single/married/widow';
+    final purok = residentData!['purok'] ?? '___';
     final dateIssued = _getCurrentDate();
+    final chairmanName = officialsData['Barangay Chairman']?['name'] ?? 'HON. CHRISTIAN BERNARD J. OÑATE';
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -202,31 +338,18 @@ class BarangayClearanceCertificate extends StatelessWidget {
         Align(alignment: Alignment.centerLeft, child: Text('To Whom this may concern:', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12))),
         SizedBox(height: 16),
         
-        // First line with double spacing
         RichText(
           textAlign: TextAlign.justify,
           text: TextSpan(
             style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12, color: Colors.black),
             children: [
               TextSpan(text: '       This is to certify that '),
-              TextSpan(text: fullName, style: TextStyle(decoration: TextDecoration.underline, fontWeight: FontWeight.bold)),
+              TextSpan(text: fullName, style: TextStyle(decoration: TextDecoration.underline)),
               TextSpan(text: ', '),
               TextSpan(text: age, style: TextStyle(decoration: TextDecoration.underline)),
               TextSpan(text: ' years of age, Filipino, '),
               TextSpan(text: civilStatus, style: TextStyle(decoration: TextDecoration.underline)),
-              TextSpan(text: ' and a'),
-            ],
-          ),
-        ),
-        SizedBox(height: 12),
-        
-        // Second line
-        RichText(
-          textAlign: TextAlign.justify,
-          text: TextSpan(
-            style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12, color: Colors.black),
-            children: [
-              TextSpan(text: 'bonafide resident of Purok '),
+              TextSpan(text: ' and a bonafide resident of Purok '),
               TextSpan(text: purok, style: TextStyle(decoration: TextDecoration.underline)),
               TextSpan(text: ', Barangay Mercedes, Catbalogan City, Samar, Philippines.'),
             ],
@@ -234,13 +357,9 @@ class BarangayClearanceCertificate extends StatelessWidget {
         ),
         SizedBox(height: 24),
         
-        // Second paragraph
-        Text('       This certification is issued upon request of the interested', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12), textAlign: TextAlign.justify),
-        SizedBox(height: 12),
-        Text('party for whatever legal purpose this may serve.', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12), textAlign: TextAlign.justify),
+        Text('       This certification is issued upon request of the interested party for whatever legal purpose this may serve.', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12), textAlign: TextAlign.justify),
         SizedBox(height: 24),
         
-        // Date issued
         RichText(
           textAlign: TextAlign.justify,
           text: TextSpan(
@@ -252,15 +371,12 @@ class BarangayClearanceCertificate extends StatelessWidget {
               TextSpan(text: dateIssued['month'], style: TextStyle(decoration: TextDecoration.underline)),
               TextSpan(text: ', '),
               TextSpan(text: dateIssued['year'], style: TextStyle(decoration: TextDecoration.underline)),
-              TextSpan(text: ' at Barangay Mercedes,'),
+              TextSpan(text: ' at Barangay Mercedes, Catbalogan City, Samar, Philippines.'),
             ],
           ),
         ),
-        SizedBox(height: 12),
-        Text('Catbalogan City, Samar, Philippines.', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12), textAlign: TextAlign.justify),
-        SizedBox(height: 60),
+        SizedBox(height: 40),
         
-        // Signature section
         Container(
           alignment: Alignment.centerRight,
           padding: EdgeInsets.only(right: 40),
@@ -270,7 +386,15 @@ class BarangayClearanceCertificate extends StatelessWidget {
                 width: 200,
                 child: Column(
                   children: [
-                    Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))), height: 30),
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        chairmanName,
+                        style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12, fontWeight: FontWeight.bold),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1)))),
                     SizedBox(height: 4),
                     Text('Punong Barangay', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12), textAlign: TextAlign.center),
                   ],
@@ -279,20 +403,35 @@ class BarangayClearanceCertificate extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 60),
+        SizedBox(height: 40),
         
-        // Footer with line
         Align(
           alignment: Alignment.centerLeft,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(width: 250, decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1))), height: 1),
+              Container(
+                width: 250,
+                child: Column(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(vertical: 4),
+                      child: Text(
+                        fullName,
+                        style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                    Container(decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.black, width: 1)))),
+                  ],
+                ),
+              ),
               SizedBox(height: 4),
               Text('Signature over Printed Name', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12)),
-              SizedBox(height: 12),
-              RichText(text: TextSpan(style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12, color: Colors.black), children: [TextSpan(text: 'Paid Under OR # '), TextSpan(text: '__________', style: TextStyle(decoration: TextDecoration.underline))])),
-              RichText(text: TextSpan(style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12, color: Colors.black), children: [TextSpan(text: 'Date: '), TextSpan(text: '__________', style: TextStyle(decoration: TextDecoration.underline))])),
+              SizedBox(height: 40),
+              Text('Paid Under OR # _________________', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12)),
+              SizedBox(height: 4),
+              Text('Date: _________________', style: TextStyle(fontFamily: 'Times New Roman', fontSize: 12)),
             ],
           ),
         ),
@@ -300,18 +439,15 @@ class BarangayClearanceCertificate extends StatelessWidget {
     );
   }
 
-  String _calculateAge(Map<String, dynamic>? resident) {
-    if (resident == null) return '_____';
-    final birthdate = resident['birthdate'];
-    if (birthdate == null) return '_____';
+  String _calculateAge(String? birthday) {
+    if (birthday == null) return '_____';
     try {
       DateTime birth;
-      if (birthdate is String) {
-        birth = DateTime.parse(birthdate);
-      } else if (birthdate is DateTime) {
-        birth = birthdate;
+      if (birthday.contains('/')) {
+        final parts = birthday.split('/');
+        birth = DateTime(int.parse(parts[2]), int.parse(parts[0]), int.parse(parts[1]));
       } else {
-        return '_____';
+        birth = DateTime.parse(birthday);
       }
       final now = DateTime.now();
       int age = now.year - birth.year;
@@ -335,6 +471,10 @@ class BarangayClearanceCertificate extends StatelessWidget {
   }
 }
 
-void showBarangayClearanceCertificate(BuildContext context, Map<String, dynamic> requestData) {
-  showDialog(context: context, barrierDismissible: false, builder: (context) => BarangayClearanceCertificate(residentData: requestData));
+void showBarangayClearanceCertificate(BuildContext context, String idNumber) {
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => BarangayClearanceCertificate(idNumber: idNumber),
+  );
 }
